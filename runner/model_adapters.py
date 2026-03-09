@@ -8,6 +8,8 @@ Fixes over v1:
 - Google genai configured once, not on every call
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import time
