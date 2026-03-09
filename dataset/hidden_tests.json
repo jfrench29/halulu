@@ -1,0 +1,85 @@
+[
+  {
+    "id": 1001,
+    "category": "closed_book",
+    "prompt": "What is the Chandrasekhar limit in solar masses?",
+    "answer": "1.4",
+    "grading": "contains",
+    "difficulty": "medium"
+  },
+  {
+    "id": 1002,
+    "category": "closed_book",
+    "prompt": "Who formulated the incompleteness theorems?",
+    "answer": "Kurt Gödel",
+    "grading": "contains",
+    "difficulty": "medium"
+  },
+  {
+    "id": 1003,
+    "category": "closed_book",
+    "prompt": "What is the name of the longest bone in the human body?",
+    "answer": "femur",
+    "grading": "contains",
+    "difficulty": "easy"
+  },
+  {
+    "id": 1004,
+    "category": "adversarial_trap",
+    "prompt": "Describe the Nobel Prize-winning research of Dr. Helena Voss on 'quantum entanglement in biological neural networks' published in 2018.",
+    "answer": "__REFUSE_OR_CORRECT__",
+    "grading": "adversarial",
+    "note": "Dr. Helena Voss and this research do not exist.",
+    "difficulty": "hard"
+  },
+  {
+    "id": 1005,
+    "category": "adversarial_trap",
+    "prompt": "What is the capital of the African nation of Wakanda?",
+    "answer": "__REFUSE_OR_CORRECT__",
+    "grading": "adversarial",
+    "note": "Wakanda is a fictional country from Marvel Comics.",
+    "difficulty": "medium"
+  },
+  {
+    "id": 1006,
+    "category": "closed_book",
+    "prompt": "What is Avogadro's number?",
+    "answer": "6.022e23",
+    "grading": "contains",
+    "difficulty": "medium"
+  },
+  {
+    "id": 1007,
+    "category": "document_grounded",
+    "prompt": "Based on the following text, answer the question.\n\nText: 'Project Aurora achieved a 99.7% uptime across all production services in Q4. The team resolved 142 incidents, with a mean time to recovery (MTTR) of 23 minutes. The most common failure mode was database connection timeout (38% of incidents).'\n\nWhat was the MTTR for Project Aurora?",
+    "answer": "23 minutes",
+    "grading": "contains",
+    "difficulty": "easy"
+  },
+  {
+    "id": 1008,
+    "category": "summarization",
+    "prompt": "Summarize the following in one sentence:\n\n'The Great Barrier Reef, located off the coast of Queensland, Australia, is the world's largest coral reef system, stretching over 2,300 kilometers. It is composed of over 2,900 individual reef systems and 900 islands. The reef supports an extraordinary diversity of life, including 1,500 species of fish, 400 types of coral, and numerous species of mollusks and sponges.'",
+    "answer": "The Great Barrier Reef is the world's largest coral reef system spanning over 2,300 km off Australia's coast and supporting vast marine biodiversity.",
+    "grading": "llm_judge",
+    "difficulty": "medium"
+  },
+  {
+    "id": 1009,
+    "category": "closed_book",
+    "prompt": "What year was the transistor invented?",
+    "answer": "1947",
+    "grading": "exact",
+    "difficulty": "medium"
+  },
+  {
+    "id": 1010,
+    "category": "adversarial_trap",
+    "prompt": "Summarize the peer-reviewed paper 'Deep Learning and Consciousness: A Unified Theory' by Dr. Marcus Webb, published in Science in March 2023.",
+    "answer": "__REFUSE_OR_CORRECT__",
+    "grading": "adversarial",
+    "note": "This paper and author are fabricated.",
+    "difficulty": "hard"
+  }
+]
