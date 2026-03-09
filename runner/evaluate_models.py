@@ -14,11 +14,18 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from grading.grader import grade
 from grading.metrics import compute_metrics, compute_reliability_score
-from runner.model_adapters import call_model
+from runner.model_adapters import call_model, get_cost_per_100
 from storage.db import ResultsDB
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
+
+GRADE_ICONS = {
+    "correct": "\u2705",
+    "wrong": "\u274c",
+    "hallucinated": "\U0001f635\u200d\U0001f4ab",
+    "refused": "\U0001f937",
+}
 
 
 def load_dataset(path: str | Path) -> list[dict]:
@@ -34,14 +41,14 @@ def run_evaluation(
 ) -> dict[str, list[dict]]:
     """Run evaluation for given models on a dataset."""
     dataset = load_dataset(dataset_path)
-    run_id = str(uuid.uuid4())  # full UUID — no truncation
+    run_id = str(uuid.uuid4())
 
     if db is None:
         db = ResultsDB()
 
     db.save_run(run_id, str(dataset_path), models)
     all_results: dict[str, list[dict]] = {}
-    adapter_cache: dict = {}  # reuse HTTP clients across calls
+    adapter_cache: dict = {}
 
     for model_name in models:
         if verbose:
@@ -66,7 +73,6 @@ def run_evaluation(
                 errors += 1
                 if verbose:
                     print("ERROR (skipped)")
-                # Do NOT grade errors — they are not real model responses
                 continue
 
             grade_result = grade(test, resp.text)
@@ -87,13 +93,11 @@ def run_evaluation(
             model_results.append(result)
 
             if verbose:
-                icon = {"correct": "\u2713", "wrong": "\u2717", "hallucinated": "\u26a0", "refused": "\u2298"}.get(grade_result.grade, "?")
+                icon = GRADE_ICONS.get(grade_result.grade, "?")
                 print(f"{icon} {grade_result.grade.upper()} ({resp.latency_ms:.0f}ms)")
 
-        # Batch write all results for this model in one transaction
         db.save_results_batch(model_results)
 
-        # Add hallucinations to Hall of Fame
         for r in model_results:
             if r["grade"] == "hallucinated":
                 db.add_to_hall_of_fame(
@@ -109,12 +113,15 @@ def run_evaluation(
         if verbose:
             metrics = compute_metrics(model_name, model_results)
             score = compute_reliability_score(metrics)
+            cost = get_cost_per_100(model_name)
             print(f"\n  --- {model_name} Summary ---")
             print(f"  Accuracy:          {metrics.accuracy_rate:.1%}")
-            print(f"  Hallucination:     {metrics.hallucination_rate:.1%}")
-            print(f"  Refusal:           {metrics.refusal_rate:.1%}")
+            print(f"  Halulu Rate:       {metrics.hallucination_rate:.1%}")
+            print(f"  Refusal Rate:      {metrics.refusal_rate:.1%}")
             print(f"  Avg Latency:       {metrics.avg_latency_ms:.0f}ms")
             print(f"  Reliability Score: {score:.1f}/100")
+            if cost is not None:
+                print(f"  Est. Cost/100q:    ${cost:.2f}")
             if errors:
                 print(f"  Errors (skipped):  {errors}")
             if metrics.hallucination_subtypes:
@@ -124,10 +131,10 @@ def run_evaluation(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="AI Reliability Index \u2014 Evaluation Runner")
+    parser = argparse.ArgumentParser(description="Halulu AI Reliability Index \u2014 Evaluation Runner")
     parser.add_argument(
         "--models", nargs="+", required=True,
-        help="Model names (e.g., gpt-4o claude-sonnet-4-20250514 gemini-2.0-flash)",
+        help="Model names (e.g., gpt-4o claude-sonnet-4-20250514 grok-2 mistral-large-latest)",
     )
     parser.add_argument(
         "--dataset", default=str(PROJECT_ROOT / "dataset" / "public_tests.json"),

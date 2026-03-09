@@ -31,6 +31,18 @@ if [ -n "${GOOGLE_API_KEY:-}" ]; then
     MODELS="$MODELS gemini-2.0-flash"
     echo "    Google API key found → will test gemini-2.0-flash"
 fi
+if [ -n "${XAI_API_KEY:-}" ]; then
+    MODELS="$MODELS grok-2"
+    echo "    xAI API key found → will test grok-2"
+fi
+if [ -n "${MISTRAL_API_KEY:-}" ]; then
+    MODELS="$MODELS mistral-large-latest"
+    echo "    Mistral API key found → will test mistral-large-latest"
+fi
+if [ -n "${TOGETHER_API_KEY:-}" ]; then
+    MODELS="$MODELS meta-llama/Llama-3.1-70B-Instruct-Turbo"
+    echo "    Together API key found → will test meta-llama/Llama-3.1-70B-Instruct-Turbo"
+fi
 
 if [ -z "$MODELS" ]; then
     echo "ERROR: No API keys found. Set at least one in Railway."

@@ -72,6 +72,24 @@ if [ -n "$GOOGLE_KEY" ]; then
     echo "    Set GOOGLE_API_KEY"
 fi
 
+read -p "    Enter your XAI_API_KEY (or press Enter to skip): " XAI_KEY
+if [ -n "$XAI_KEY" ]; then
+    railway variables set XAI_API_KEY="$XAI_KEY"
+    echo "    Set XAI_API_KEY"
+fi
+
+read -p "    Enter your MISTRAL_API_KEY (or press Enter to skip): " MISTRAL_KEY
+if [ -n "$MISTRAL_KEY" ]; then
+    railway variables set MISTRAL_API_KEY="$MISTRAL_KEY"
+    echo "    Set MISTRAL_API_KEY"
+fi
+
+read -p "    Enter your TOGETHER_API_KEY (or press Enter to skip): " TOGETHER_KEY
+if [ -n "$TOGETHER_KEY" ]; then
+    railway variables set TOGETHER_API_KEY="$TOGETHER_KEY"
+    echo "    Set TOGETHER_API_KEY"
+fi
+
 # Analytics (disabled by default — enable after Plausible setup)
 railway variables set PLAUSIBLE_ENABLED="false" 2>/dev/null || true
 railway variables set PLAUSIBLE_DOMAIN="halulu.ai" 2>/dev/null || true
