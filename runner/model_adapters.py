@@ -68,7 +68,7 @@ class OpenAIAdapter(ModelAdapter):
 
 
 class AnthropicAdapter(ModelAdapter):
-    def __init__(self, model: str = "claude-sonnet-4-20250514", api_key: str | None = None):
+    def __init__(self, model: str = "claude-sonnet-4-6", api_key: str | None = None):
         import anthropic
 
         self._model = model
@@ -94,7 +94,7 @@ class AnthropicAdapter(ModelAdapter):
 
 
 class GoogleAdapter(ModelAdapter):
-    def __init__(self, model: str = "gemini-2.0-flash", api_key: str | None = None):
+    def __init__(self, model: str = "gemini-2.5-flash", api_key: str | None = None):
         import google.generativeai as genai
 
         self._model_name = model
@@ -119,7 +119,7 @@ class GoogleAdapter(ModelAdapter):
 class XAIAdapter(ModelAdapter):
     """xAI (Grok) — OpenAI-compatible API at api.x.ai."""
 
-    def __init__(self, model: str = "grok-2", api_key: str | None = None):
+    def __init__(self, model: str = "grok-3-mini", api_key: str | None = None):
         from openai import OpenAI
 
         self._model = model
@@ -178,7 +178,7 @@ class MistralAdapter(ModelAdapter):
 class TogetherAdapter(ModelAdapter):
     """Together AI — hosts Meta Llama and other open models. OpenAI-compatible API."""
 
-    def __init__(self, model: str = "meta-llama/Llama-3.1-70B-Instruct-Turbo", api_key: str | None = None):
+    def __init__(self, model: str = "meta-llama/Llama-3.3-70B-Instruct-Turbo", api_key: str | None = None):
         from openai import OpenAI
 
         self._model = model
@@ -259,12 +259,14 @@ MODEL_COST_PER_100: dict[str, float] = {
     "gpt-4o-mini": 0.01,
     "o1": 3.00,
     "o3": 2.00,
+    "claude-sonnet-4-6": 0.36,
     "claude-sonnet-4-20250514": 0.36,
     "claude-haiku-4-5-20251001": 0.05,
+    "gemini-2.5-flash": 0.02,
     "gemini-2.0-flash": 0.01,
-    "grok-2": 0.24,
+    "grok-3-mini": 0.02,
     "mistral-large-latest": 0.16,
-    "meta-llama/Llama-3.1-70B-Instruct-Turbo": 0.04,
+    "meta-llama/Llama-3.3-70B-Instruct-Turbo": 0.04,
 }
 
 

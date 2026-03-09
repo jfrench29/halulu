@@ -24,24 +24,24 @@ if [ -n "${OPENAI_API_KEY:-}" ]; then
     echo "    OpenAI API key found → will test gpt-4o"
 fi
 if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
-    MODELS="$MODELS claude-sonnet-4-20250514"
-    echo "    Anthropic API key found → will test claude-sonnet-4-20250514"
+    MODELS="$MODELS claude-sonnet-4-6"
+    echo "    Anthropic API key found → will test claude-sonnet-4-6"
 fi
 if [ -n "${GOOGLE_API_KEY:-}" ]; then
-    MODELS="$MODELS gemini-2.0-flash"
-    echo "    Google API key found → will test gemini-2.0-flash"
+    MODELS="$MODELS gemini-2.5-flash"
+    echo "    Google API key found → will test gemini-2.5-flash"
 fi
 if [ -n "${XAI_API_KEY:-}" ]; then
-    MODELS="$MODELS grok-2"
-    echo "    xAI API key found → will test grok-2"
+    MODELS="$MODELS grok-3-mini"
+    echo "    xAI API key found → will test grok-3-mini"
 fi
 if [ -n "${MISTRAL_API_KEY:-}" ]; then
     MODELS="$MODELS mistral-large-latest"
     echo "    Mistral API key found → will test mistral-large-latest"
 fi
 if [ -n "${TOGETHER_API_KEY:-}" ]; then
-    MODELS="$MODELS meta-llama/Llama-3.1-70B-Instruct-Turbo"
-    echo "    Together API key found → will test meta-llama/Llama-3.1-70B-Instruct-Turbo"
+    MODELS="$MODELS meta-llama/Llama-3.3-70B-Instruct-Turbo"
+    echo "    Together API key found → will test meta-llama/Llama-3.3-70B-Instruct-Turbo"
 fi
 
 if [ -z "$MODELS" ]; then
