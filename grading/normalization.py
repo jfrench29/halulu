@@ -57,11 +57,24 @@ def extract_numbers(text: str) -> list[float]:
     """Extract all plausible numbers from free text.
 
     Handles: 299,792,458 | $60.9 | 27 billion | 6.022e23 | 1.4
+    Also handles: 6.022 × 10^23 | 6.022 x 10^23 | 6.022 * 10^23
     """
     cleaned = text.replace(",", "")
     results: list[float] = []
 
-    # Match numbers with optional scale words
+    # First pass: scientific notation with × or x (e.g., "6.022 × 10^23")
+    for m in re.finditer(
+        r"(-?[\d]+\.?\d*)\s*[×xX\*]\s*10\^(-?\d+)",
+        cleaned,
+    ):
+        try:
+            mantissa = float(m.group(1))
+            exponent = int(m.group(2))
+            results.append(mantissa * (10 ** exponent))
+        except (ValueError, OverflowError):
+            continue
+
+    # Second pass: standard numbers with optional scale words
     for m in re.finditer(
         r"(-?[\d]+\.?\d*(?:[eE][+-]?\d+)?)\s*(trillion|billion|million|thousand)?",
         cleaned, re.IGNORECASE,
@@ -79,7 +92,9 @@ def extract_numbers(text: str) -> list[float]:
             val *= 1e6
         elif scale == "thousand":
             val *= 1e3
-        results.append(val)
+        # Skip if this number was already captured by the × 10^ pass
+        if not any(abs(val - r) < abs(val * 1e-9) + 1e-30 for r in results):
+            results.append(val)
 
     return results
 

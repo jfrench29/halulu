@@ -241,3 +241,185 @@ class TestDispatcher:
         }
         result = grade(test, "Apple has never acquired Netflix.")
         assert result.result == "correct"
+
+
+# ── Substring Boundary Tests ────────────────────────────────────────
+
+class TestSubstringBoundary:
+    """Audit finding: short facts like 'Au' could match inside longer words."""
+
+    GOLD = {
+        "id": 2,
+        "category": "closed_factual",
+        "prompt": "What is the chemical symbol for gold?",
+        "correct_answer": "Au",
+        "reference_facts": ["Au"],
+        "grading": {"type": "behavioral"},
+    }
+
+    C_LANG = {
+        "id": 7,
+        "category": "closed_factual",
+        "prompt": "What programming language was the original Unix kernel written in?",
+        "correct_answer": "C",
+        "reference_facts": ["C"],
+        "grading": {"type": "behavioral"},
+    }
+
+    def test_au_exact_match(self):
+        result = grade_closed_factual(self.GOLD, "The chemical symbol for gold is Au.")
+        assert result.result == "correct"
+
+    def test_au_not_in_automatic(self):
+        """'Au' should NOT match inside 'automatic' or 'authority'."""
+        result = grade_closed_factual(self.GOLD, "The automatic authority handled it.")
+        assert result.result == "incorrect"
+
+    def test_au_not_in_because(self):
+        result = grade_closed_factual(self.GOLD, "Because autumn is beautiful.")
+        assert result.result == "incorrect"
+
+    def test_c_exact_match(self):
+        result = grade_closed_factual(self.C_LANG, "The Unix kernel was written in C.")
+        assert result.result == "correct"
+
+    def test_c_not_in_contain(self):
+        """'C' should NOT match inside 'contain' or 'code'."""
+        result = grade_closed_factual(self.C_LANG, "This code will contain the result.")
+        assert result.result == "incorrect"
+
+    def test_document_grounded_short_fact(self):
+        """Document grounded grader also uses boundary matching for short facts."""
+        test = {
+            "id": 99,
+            "category": "document_grounded",
+            "prompt": "What percentage?",
+            "correct_answer": "34%",
+            "reference_facts": ["34"],
+            "grading": {"type": "behavioral"},
+        }
+        result = grade_document_grounded(test, "The result was 34 percent.")
+        assert result.result == "correct"
+
+
+# ── Numerical Edge Cases ────────────────────────────────────────────
+
+class TestNumericalEdgeCases:
+    """Audit finding: missing edge case tests for numerical grader."""
+
+    def test_billion_scale_word(self):
+        test = {
+            "id": 31,
+            "category": "numerical",
+            "prompt": "GDP of Brazil?",
+            "correct_answer": "2.13 trillion",
+            "reference_facts": ["2130000000000"],
+            "grading": {"type": "behavioral", "tolerance": 200000000000},
+        }
+        result = grade_numerical(test, "Brazil's GDP is approximately $2.1 trillion.")
+        assert result.result == "correct"
+
+    def test_scientific_notation_response(self):
+        test = {
+            "id": 1009,
+            "category": "numerical",
+            "prompt": "Avogadro's number?",
+            "correct_answer": "6.022e23",
+            "reference_facts": ["6.022e23"],
+            "grading": {"type": "behavioral", "tolerance": 1e20},
+        }
+        result = grade_numerical(test, "Avogadro's number is approximately 6.022 × 10^23.")
+        assert result.result == "correct"
+
+    def test_no_numbers_in_response(self):
+        test = {
+            "id": 28,
+            "category": "numerical",
+            "prompt": "How many bones?",
+            "correct_answer": "206",
+            "grading": {"type": "behavioral", "tolerance": 0},
+        }
+        result = grade_numerical(test, "There are many bones in the human body.")
+        assert result.result == "incorrect"
+
+    def test_refusal(self):
+        test = {
+            "id": 28,
+            "category": "numerical",
+            "prompt": "How many bones?",
+            "correct_answer": "206",
+            "grading": {"type": "behavioral", "tolerance": 0},
+        }
+        result = grade_numerical(test, "I cannot provide that information.")
+        assert result.result == "refused"
+
+    def test_small_tolerance(self):
+        """Gravitational constant with tight tolerance."""
+        test = {
+            "id": 35,
+            "category": "numerical",
+            "prompt": "Gravitational constant G?",
+            "correct_answer": "6.674e-11",
+            "grading": {"type": "behavioral", "tolerance": 1e-13},
+        }
+        result = grade_numerical(test, "The gravitational constant is 6.674e-11 m^3 kg^-1 s^-2.")
+        assert result.result == "correct"
+
+
+# ── Summarization Edge Cases ────────────────────────────────────────
+
+class TestSummarizationEdgeCases:
+    """Audit finding: missing threshold boundary and empty refs tests."""
+
+    def test_threshold_boundary_just_above(self):
+        """Exactly at 40% overlap should pass."""
+        test = {
+            "id": 99,
+            "category": "summarization",
+            "prompt": "Summarize.",
+            "correct_answer": "",
+            "reference_facts": ["alpha", "beta", "gamma", "delta", "epsilon"],
+            "grading": {"type": "behavioral"},
+        }
+        # 2 out of 5 = 40%
+        result = grade_summarization(test, "This discusses alpha and beta topics.")
+        assert result.result == "correct"
+
+    def test_threshold_boundary_just_below(self):
+        """Below 40% overlap should fail."""
+        test = {
+            "id": 99,
+            "category": "summarization",
+            "prompt": "Summarize.",
+            "correct_answer": "",
+            "reference_facts": ["alpha", "beta", "gamma", "delta", "epsilon"],
+            "grading": {"type": "behavioral"},
+        }
+        # 1 out of 5 = 20%
+        result = grade_summarization(test, "This discusses alpha and nothing else relevant.")
+        assert result.result == "incorrect"
+
+    def test_empty_reference_facts(self):
+        """Empty reference_facts with empty correct_answer → correct (no comparison)."""
+        test = {
+            "id": 99,
+            "category": "summarization",
+            "prompt": "Summarize.",
+            "correct_answer": "",
+            "reference_facts": [],
+            "grading": {"type": "behavioral"},
+        }
+        result = grade_summarization(test, "Some summary text.")
+        assert result.result == "correct"
+
+    def test_refusal(self):
+        test = {
+            "id": 99,
+            "category": "summarization",
+            "prompt": "Summarize.",
+            "correct_answer": "A summary.",
+            "reference_facts": ["summary"],
+            "grading": {"type": "behavioral"},
+        }
+        result = grade_summarization(test, "I'm unable to summarize this.")
+        assert result.result == "refused"

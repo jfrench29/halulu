@@ -1,12 +1,26 @@
 """Grader for document_grounded questions.
 
 Claims must be supported by the source document embedded in the prompt.
+Uses word-boundary matching for short facts to prevent substring collisions.
 """
 
 from __future__ import annotations
 
+import re
+
 from grading.normalization import normalize_text, detect_refusal
 from grading.schemas import GradeResult
+
+_BOUNDARY_THRESHOLD = 5
+
+
+def _fact_in_response(norm_fact: str, norm_resp: str) -> bool:
+    """Word-boundary match for short facts, substring match for longer ones."""
+    if not norm_fact:
+        return False
+    if len(norm_fact) < _BOUNDARY_THRESHOLD:
+        return bool(re.search(r"\b" + re.escape(norm_fact) + r"\b", norm_resp))
+    return norm_fact in norm_resp
 
 
 def grade_document_grounded(test_case: dict, response: str) -> GradeResult:
@@ -20,7 +34,7 @@ def grade_document_grounded(test_case: dict, response: str) -> GradeResult:
 
     for fact in reference_facts:
         norm_fact = normalize_text(fact)
-        if norm_fact and norm_fact in norm_resp:
+        if _fact_in_response(norm_fact, norm_resp):
             return GradeResult(
                 result="correct",
                 reason=f"Response contains grounded fact: '{fact}'",
@@ -29,7 +43,7 @@ def grade_document_grounded(test_case: dict, response: str) -> GradeResult:
 
     # Fallback to correct_answer
     norm_ans = normalize_text(answer)
-    if norm_ans and norm_ans in norm_resp:
+    if _fact_in_response(norm_ans, norm_resp):
         return GradeResult(
             result="correct",
             reason=f"Response contains '{answer}'",
