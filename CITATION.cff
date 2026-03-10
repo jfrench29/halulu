@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use Halulu in your research, please cite it as below."
+title: "Halulu: AI Reliability Index"
+abstract: >-
+  An independent, open-source benchmark measuring AI hallucination rates
+  across production language models using adversarial trap questions,
+  severity-weighted scoring, and behavioral grading.
+type: software
+authors:
+  - family-names: French
+    given-names: Jack
+repository-code: "https://github.com/jfrench29/halulu"
+url: "https://halulu.ai"
+license: MIT
+version: "1.0.0"
+date-released: "2026-03-10"
+keywords:
+  - ai-benchmark
+  - hallucination
+  - llm-evaluation
+  - ai-reliability
+  - trustworthy-ai

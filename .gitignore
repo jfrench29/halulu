@@ -12,6 +12,9 @@ venv/
 .env.local
 .env.production
 
+# Hidden test set — never commit to public repo
+dataset/hidden_tests.json
+
 # Database (local dev only — production uses PostgreSQL)
 storage/results.db
 
