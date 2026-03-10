@@ -113,6 +113,7 @@ class ResultsDB:
                 grade TEXT NOT NULL,
                 hallucination_subtype TEXT,
                 confidence REAL,
+                severity INTEGER DEFAULT 0,
                 explanation TEXT,
                 latency_ms REAL,
                 timestamp TEXT NOT NULL
@@ -132,10 +133,29 @@ class ResultsDB:
             "CREATE INDEX IF NOT EXISTS idx_results_ts ON eval_results(timestamp)",
         ]
 
+        # Migration: add severity column to existing tables
+        migration_stmts = []
+        if self._is_postgres:
+            migration_stmts.append(
+                "ALTER TABLE eval_results ADD COLUMN IF NOT EXISTS severity INTEGER DEFAULT 0"
+            )
+        else:
+            # SQLite: check if column exists before adding
+            migration_stmts.append(
+                "ALTER TABLE eval_results ADD COLUMN severity INTEGER DEFAULT 0"
+            )
+
         with self._conn() as conn:
             cur = conn.cursor()
             for stmt in stmts:
                 cur.execute(stmt)
+
+            # Run migrations (ignore errors for already-existing columns)
+            for stmt in migration_stmts:
+                try:
+                    cur.execute(stmt)
+                except Exception:
+                    pass  # column already exists
 
     # ------------------------------------------------------------------
     # Helpers
@@ -172,12 +192,13 @@ class ResultsDB:
                 cur.execute(
                     f"""INSERT INTO eval_results
                     (run_id, model, test_id, category, prompt, response, grade,
-                     hallucination_subtype, confidence, explanation, latency_ms, timestamp)
-                    VALUES ({self._ph(12)})""",
+                     hallucination_subtype, confidence, severity, explanation, latency_ms, timestamp)
+                    VALUES ({self._ph(13)})""",
                     (
                         r["run_id"], r["model"], r["test_id"], r["category"],
                         r["prompt"], r["response"], r["grade"],
                         r.get("hallucination_subtype"), r.get("confidence", 1.0),
+                        r.get("severity", 0),
                         r.get("explanation", ""), r.get("latency_ms", 0), _utcnow(),
                     ),
                 )

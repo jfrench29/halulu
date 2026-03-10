@@ -2,16 +2,16 @@
 
 Sections:
 1. AI Reliability Leaderboard
-2. Hallucination of the Week
-3. Model Trend Chart
+2. Category Heatmap (model x category accuracy)
+3. Model Spotlight (radar chart per model)
 4. Reality Stress Tests (sample questions)
-5. Benchmark Dataset Transparency
-6. Hallucination Hall of Fame
+5. Benchmark Methodology
 """
 
 from __future__ import annotations
 
 import json
+import math
 import os
 import sys
 from pathlib import Path
@@ -65,17 +65,15 @@ if "dark_mode" not in st.session_state:
 dark = st.session_state.dark_mode
 
 # ── Brand Palette ────────────────────────────────────────────────────
-# Unified color system — accent + semantic colors stay constant across
-# both modes so the brand reads identically light or dark.
 
-_accent = "#6C5CE7"        # halulu purple
-_accent_soft = "#8B7CF6"   # lighter purple for hover / subtle
-_correct = "#2DD4BF"       # teal-green (semantic: correct)
-_hallucinated = "#EF4444"  # red (semantic: hallucinated)
-_warning = "#F59E0B"       # amber (semantic: citation trap)
-_info = "#3B82F6"          # blue (semantic: numerical)
-_organic = "#10B981"       # green (semantic: document grounded)
-_teal = "#14B8A6"          # teal (semantic: summarization)
+_accent = "#6C5CE7"
+_accent_soft = "#8B7CF6"
+_correct = "#2DD4BF"
+_hallucinated = "#EF4444"
+_warning = "#F59E0B"
+_info = "#3B82F6"
+_organic = "#10B981"
+_teal = "#14B8A6"
 
 if dark:
     _bg = "#0D1117"
@@ -104,7 +102,6 @@ else:
 
 st.markdown(f"""
 <style>
-    /* ── Reset & Base ───────────────────────────────────────────── */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     #MainMenu {{visibility: hidden;}}
@@ -117,7 +114,6 @@ st.markdown(f"""
         color: {_text};
     }}
 
-    /* Tighten Streamlit's default block spacing */
     .block-container {{
         padding-top: 1rem !important;
         padding-bottom: 1rem !important;
@@ -157,9 +153,9 @@ st.markdown(f"""
         border-radius: 8px;
         padding: 0.75rem 1.5rem;
         text-align: center;
-        min-width: 140px;
+        min-width: 120px;
         flex: 1;
-        max-width: 200px;
+        max-width: 180px;
     }}
     .stat-card .value {{
         font-size: 1.5rem;
@@ -168,7 +164,7 @@ st.markdown(f"""
         line-height: 1.2;
     }}
     .stat-card .label {{
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: {_text_muted};
         margin-top: 2px;
         text-transform: uppercase;
@@ -197,43 +193,39 @@ st.markdown(f"""
         overflow: hidden;
     }}
 
-    /* ── Hall of Fame Cards ────────────────────────────────────── */
-    .hof-card {{
-        background: {_card_bg};
-        border: 1px solid {_card_border};
-        border-radius: 8px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 0.75rem;
+    /* ── Heatmap ──────────────────────────────────────────────── */
+    .heatmap-table {{
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
     }}
-    .hof-card .model-tag {{
-        display: inline-block;
-        background: {_hallucinated};
-        color: white;
-        padding: 1px 8px;
-        border-radius: 4px;
-        font-size: 0.75rem;
+    .heatmap-table th {{
+        background: {_table_header_bg};
+        color: {_text};
         font-weight: 600;
-    }}
-    .hof-card .subtype-tag {{
-        color: {_text_muted};
+        text-align: center;
+        padding: 0.4rem 0.5rem;
+        border-bottom: 1px solid {_border};
         font-size: 0.75rem;
-        margin-left: 6px;
     }}
-    .hof-card .prompt-text {{
-        color: {_text_secondary};
-        margin: 0.5rem 0;
-        font-size: 0.875rem;
-        line-height: 1.5;
+    .heatmap-table td {{
+        text-align: center;
+        padding: 0.4rem 0.5rem;
+        border-bottom: 1px solid {_card_border};
+        font-weight: 500;
+        font-size: 0.8rem;
     }}
-    .hof-card .response-text {{
-        color: {_hallucinated};
-        margin: 0.5rem 0;
-        font-size: 0.875rem;
-        line-height: 1.5;
+    .heatmap-table td.model-name {{
+        text-align: left;
+        color: {_text};
+        font-weight: 600;
+        font-size: 0.8rem;
     }}
-    .hof-card .correct-text {{
-        color: {_correct};
-        font-size: 0.875rem;
+
+    /* ── Radar Chart ──────────────────────────────────────────── */
+    .radar-svg {{
+        display: block;
+        margin: 0 auto;
     }}
 
     /* ── Stress Test Cards ─────────────────────────────────────── */
@@ -297,16 +289,6 @@ st.markdown(f"""
         text-decoration: underline;
     }}
 
-    /* ── Dark Mode Toggle ──────────────────────────────────────── */
-    .mode-toggle {{
-        position: fixed;
-        top: 12px;
-        right: 16px;
-        z-index: 999;
-        font-size: 0.8rem;
-        color: {_text_muted};
-    }}
-
     /* ── Streamlit widget overrides ────────────────────────────── */
     .stMarkdown p {{
         color: {_text_secondary};
@@ -320,7 +302,6 @@ st.markdown(f"""
         color: {_text};
     }}
 
-    /* Info boxes */
     [data-testid="stNotification"] {{
         background: {_card_bg};
         border: 1px solid {_card_border};
@@ -328,7 +309,6 @@ st.markdown(f"""
         border-radius: 8px;
     }}
 
-    /* Chart area */
     .stPlotlyChart, [data-testid="stArrowVegaLiteChart"] {{
         background: {_card_bg};
         border: 1px solid {_card_border};
@@ -357,27 +337,21 @@ def load_leaderboard():
         cost = get_cost_per_100(model)
         rows.append({
             "Model": model,
-            "Score": score,
+            "WRS": score,
             "Accuracy": metrics.accuracy_rate,
             "Halulu Rate": metrics.hallucination_rate,
+            "TDR": metrics.trap_detection_rate,
+            "Avg Severity": metrics.avg_severity,
             "Refusal Rate": metrics.refusal_rate,
+            "Uncertain Rate": metrics.uncertain_rate,
             "Avg Latency": f"{metrics.avg_latency_ms:.0f}ms",
             "Cost/100q": f"${cost:.2f}" if cost else "N/A",
             "Total": metrics.total,
+            "_category_breakdown": metrics.category_breakdown,
+            "_cost": cost,
+            "_wrs": score,
         })
-    return sorted(rows, key=lambda r: r["Score"], reverse=True)
-
-
-@st.cache_data(ttl=120)
-def load_hall_of_fame():
-    db = get_db()
-    return db.get_hall_of_fame(limit=20)
-
-
-@st.cache_data(ttl=120)
-def load_trend_data():
-    db = get_db()
-    return db.get_trend_data()
+    return sorted(rows, key=lambda r: r["WRS"], reverse=True)
 
 
 @st.cache_data(ttl=3600)
@@ -411,16 +385,23 @@ leaderboard = load_leaderboard()
 
 if leaderboard:
     total_models = len(leaderboard)
-    total_questions = sum(r["Total"] for r in leaderboard)
     avg_halulu = sum(r["Halulu Rate"] for r in leaderboard) / total_models if total_models else 0
-    top_score = leaderboard[0]["Score"] if leaderboard else 0
+    avg_tdr = sum(r["TDR"] for r in leaderboard) / total_models if total_models else 0
+    top_wrs = leaderboard[0]["WRS"] if leaderboard else 0
+    # Cost efficiency: best WRS/cost ratio
+    cost_eff = []
+    for r in leaderboard:
+        if r["_cost"] and r["_cost"] > 0:
+            cost_eff.append({"model": r["Model"], "ratio": r["_wrs"] / r["_cost"]})
+    best_value = max(cost_eff, key=lambda x: x["ratio"])["model"].split("-")[0].title() if cost_eff else "N/A"
 
     st.markdown(f"""
     <div class="stat-row">
         <div class="stat-card"><div class="value">{total_models}</div><div class="label">Models Tested</div></div>
-        <div class="stat-card"><div class="value">{total_questions}</div><div class="label">Questions Answered</div></div>
+        <div class="stat-card"><div class="value">{top_wrs:.0f}</div><div class="label">Top WRS</div></div>
         <div class="stat-card"><div class="value">{avg_halulu:.1%}</div><div class="label">Avg Halulu Rate</div></div>
-        <div class="stat-card"><div class="value">{top_score:.0f}</div><div class="label">Top Score</div></div>
+        <div class="stat-card"><div class="value">{avg_tdr:.0%}</div><div class="label">Avg Trap Detection</div></div>
+        <div class="stat-card"><div class="value">{best_value}</div><div class="label">Best Value</div></div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -434,11 +415,12 @@ if leaderboard:
     display_df = pd.DataFrame({
         "Rank": range(1, len(df) + 1),
         "Model": df["Model"],
-        "Score": df["Score"].apply(lambda x: f"{x:.1f}"),
+        "WRS": df["WRS"].apply(lambda x: f"{x:.1f}"),
         "Accuracy": df["Accuracy"].apply(lambda x: f"{x:.1%}"),
         "Halulu Rate 😵‍💫": df["Halulu Rate"].apply(lambda x: f"{x:.1%}"),
-        "Refusal Rate": df["Refusal Rate"].apply(lambda x: f"{x:.1%}"),
-        "Avg Latency": df["Avg Latency"],
+        "Trap Detection": df["TDR"].apply(lambda x: f"{x:.0%}"),
+        "Avg Severity": df["Avg Severity"].apply(lambda x: f"{x:.1f}" if x > 0 else "—"),
+        "Latency": df["Avg Latency"],
         "Cost/100q": df["Cost/100q"],
     })
 
@@ -446,48 +428,186 @@ if leaderboard:
 else:
     st.info("No evaluation data yet. Run the benchmark to populate the leaderboard.")
 
-# ── 2. Hallucination of the Week ──────────────────────────────────────
+# ── 2. Category Accuracy Heatmap ──────────────────────────────────────
 
-st.markdown('<div class="section-header">😵‍💫 Hallucination of the Week</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-header">Category Accuracy Heatmap</div>', unsafe_allow_html=True)
+st.markdown("How each model performs across different hallucination categories. Green = high accuracy, red = low.")
 
-hof = load_hall_of_fame()
-if hof:
-    featured = hof[0]
-    prompt_safe = featured["prompt"][:500].replace("<", "&lt;").replace(">", "&gt;")
-    response_safe = featured["response"][:500].replace("<", "&lt;").replace(">", "&gt;")
-    subtype = featured.get("hallucination_subtype", "unknown")
+if leaderboard:
+    categories = ["closed_factual", "false_premise", "citation_trap", "document_grounded", "summarization", "numerical"]
+    cat_labels = {
+        "closed_factual": "Factual",
+        "false_premise": "False Premise",
+        "citation_trap": "Citation Trap",
+        "document_grounded": "Doc Grounded",
+        "summarization": "Summary",
+        "numerical": "Numerical",
+    }
+
+    def _heatmap_color(rate: float) -> str:
+        """Green for high accuracy, red for low."""
+        if rate >= 0.9:
+            return "#2DD4BF"  # teal-green
+        elif rate >= 0.7:
+            return "#A7F3D0"  # light green
+        elif rate >= 0.5:
+            return "#FDE68A"  # yellow
+        elif rate >= 0.3:
+            return "#FCA5A5"  # light red
+        else:
+            return "#EF4444"  # red
+
+    def _text_color_for_bg(bg: str) -> str:
+        """Dark text for light backgrounds, light for dark."""
+        if bg in ("#2DD4BF", "#A7F3D0", "#FDE68A", "#FCA5A5"):
+            return "#1F2328"
+        return "#FFFFFF"
+
+    header_row = "<tr><th style='text-align:left;'>Model</th>"
+    for cat in categories:
+        header_row += f"<th>{cat_labels[cat]}</th>"
+    header_row += "</tr>"
+
+    body_rows = ""
+    for row in leaderboard:
+        breakdown = row.get("_category_breakdown", {})
+        body_rows += f"<tr><td class='model-name'>{row['Model']}</td>"
+        for cat in categories:
+            cat_data = breakdown.get(cat, {})
+            rate = cat_data.get("accuracy_rate", 0)
+            bg = _heatmap_color(rate)
+            tc = _text_color_for_bg(bg)
+            body_rows += f"<td style='background:{bg}; color:{tc};'>{rate:.0%}</td>"
+        body_rows += "</tr>"
 
     st.markdown(f"""
-    <div class="hof-card">
-        <div class="model-tag">{featured["model"]}</div>
-        <span class="subtype-tag">{subtype}</span>
-        <div class="prompt-text"><strong>Prompt:</strong> {prompt_safe}</div>
-        <div class="response-text"><strong>Model said:</strong> {response_safe}</div>
-        <div class="correct-text"><strong>Reality:</strong> This is a hallucination.</div>
-    </div>
+    <table class="heatmap-table">
+        {header_row}
+        {body_rows}
+    </table>
     """, unsafe_allow_html=True)
-else:
-    st.info("No hallucinations recorded yet. Run the benchmark to catch some!")
 
-# ── 3. Model Trend Chart ──────────────────────────────────────────────
+# ── 3. Model Spotlight ────────────────────────────────────────────────
 
-st.markdown('<div class="section-header">Model Trend Chart</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-header">Model Spotlight</div>', unsafe_allow_html=True)
+st.markdown("Select a model to see its strengths and weaknesses across categories.")
 
-trend_data = load_trend_data()
-if trend_data:
-    trend_df = pd.DataFrame(trend_data)
-    if "eval_date" in trend_df.columns and "hallucinated" in trend_df.columns:
-        trend_df["halulu_rate"] = trend_df["hallucinated"] / trend_df["total"]
-        chart_data = trend_df.pivot_table(
-            index="eval_date", columns="model", values="halulu_rate", aggfunc="mean"
-        )
-        st.line_chart(chart_data)
-    else:
-        st.info("Not enough data for trend chart yet. Run multiple evaluations over time.")
-else:
-    st.info("Trend data will appear after multiple evaluation runs.")
+if leaderboard:
+    model_names = [r["Model"] for r in leaderboard]
+    selected_model = st.selectbox("Choose model", model_names, label_visibility="collapsed")
 
-# ── 4. Reality Stress Tests ───────────────────────────────────────────
+    selected_row = next((r for r in leaderboard if r["Model"] == selected_model), None)
+    if selected_row:
+        breakdown = selected_row.get("_category_breakdown", {})
+        categories_for_radar = ["closed_factual", "false_premise", "citation_trap", "document_grounded", "summarization", "numerical"]
+        radar_labels = ["Factual", "False\nPremise", "Citation\nTrap", "Doc\nGrounded", "Summary", "Numerical"]
+
+        values = []
+        for cat in categories_for_radar:
+            cat_data = breakdown.get(cat, {})
+            values.append(cat_data.get("accuracy_rate", 0))
+
+        # Build SVG radar chart
+        n = len(values)
+        cx, cy, r = 160, 160, 120
+        angles = [2 * math.pi * i / n - math.pi / 2 for i in range(n)]
+
+        # Grid circles
+        grid_svg = ""
+        for level in [0.25, 0.5, 0.75, 1.0]:
+            grid_r = r * level
+            grid_svg += f'<circle cx="{cx}" cy="{cy}" r="{grid_r}" fill="none" stroke="{_border}" stroke-width="0.5" stroke-dasharray="3,3"/>'
+
+        # Grid labels (25%, 50%, etc.)
+        for level in [0.5, 1.0]:
+            label_y = cy - r * level - 4
+            grid_svg += f'<text x="{cx + 3}" y="{label_y}" font-size="9" fill="{_text_muted}" font-family="Inter, sans-serif">{int(level*100)}%</text>'
+
+        # Axis lines and labels
+        axis_svg = ""
+        for i, angle in enumerate(angles):
+            x_end = cx + r * math.cos(angle)
+            y_end = cy + r * math.sin(angle)
+            axis_svg += f'<line x1="{cx}" y1="{cy}" x2="{x_end}" y2="{y_end}" stroke="{_border}" stroke-width="0.5"/>'
+            # Label
+            lx = cx + (r + 24) * math.cos(angle)
+            ly = cy + (r + 24) * math.sin(angle)
+            label = radar_labels[i].replace("\n", "")
+            axis_svg += f'<text x="{lx}" y="{ly}" font-size="10" fill="{_text_secondary}" text-anchor="middle" dominant-baseline="middle" font-family="Inter, sans-serif">{label}</text>'
+
+        # Data polygon
+        points = []
+        for i, v in enumerate(values):
+            px = cx + r * v * math.cos(angles[i])
+            py = cy + r * v * math.sin(angles[i])
+            points.append(f"{px},{py}")
+        points_str = " ".join(points)
+
+        # Data dots
+        dots_svg = ""
+        for i, v in enumerate(values):
+            px = cx + r * v * math.cos(angles[i])
+            py = cy + r * v * math.sin(angles[i])
+            dots_svg += f'<circle cx="{px}" cy="{py}" r="4" fill="{_accent}" stroke="white" stroke-width="1.5"/>'
+
+        radar_svg = f"""
+        <svg class="radar-svg" width="320" height="320" viewBox="0 0 320 320">
+            {grid_svg}
+            {axis_svg}
+            <polygon points="{points_str}" fill="{_accent}" fill-opacity="0.15" stroke="{_accent}" stroke-width="2"/>
+            {dots_svg}
+        </svg>
+        """
+
+        # Show radar + key stats side by side
+        col_radar, col_stats = st.columns([1, 1])
+        with col_radar:
+            st.markdown(radar_svg, unsafe_allow_html=True)
+        with col_stats:
+            wrs = selected_row["WRS"]
+            acc = selected_row["Accuracy"]
+            hr = selected_row["Halulu Rate"]
+            tdr = selected_row["TDR"]
+            sev = selected_row["Avg Severity"]
+            cost = selected_row["Cost/100q"]
+
+            st.markdown(f"""
+**{selected_model}**
+
+| Metric | Value |
+|--------|-------|
+| WRS | **{wrs:.1f}** / 100 |
+| Accuracy | {acc:.1%} |
+| Halulu Rate | {hr:.1%} |
+| Trap Detection | {tdr:.0%} |
+| Avg Severity | {sev:.1f} / 5 |
+| Cost / 100q | {cost} |
+""")
+
+# ── 4. Cost Efficiency ───────────────────────────────────────────────
+
+st.markdown('<div class="section-header">Cost Efficiency</div>', unsafe_allow_html=True)
+st.markdown("WRS score per dollar spent — which model gives the best reliability for your budget?")
+
+if leaderboard:
+    eff_rows = []
+    for r in leaderboard:
+        cost = r.get("_cost")
+        if cost and cost > 0:
+            ratio = r["_wrs"] / cost
+            eff_rows.append({
+                "Model": r["Model"],
+                "WRS": f"{r['_wrs']:.1f}",
+                "Cost/100q": r["Cost/100q"],
+                "WRS per $1": f"{ratio:.0f}",
+            })
+    if eff_rows:
+        eff_rows.sort(key=lambda x: float(x["WRS per $1"]), reverse=True)
+        eff_df = pd.DataFrame(eff_rows)
+        eff_df.insert(0, "Rank", range(1, len(eff_df) + 1))
+        st.dataframe(eff_df, use_container_width=True, hide_index=True)
+
+# ── 5. Reality Stress Tests ───────────────────────────────────────────
 
 st.markdown('<div class="section-header">Reality Stress Tests</div>', unsafe_allow_html=True)
 st.markdown("Sample questions from our benchmark designed to catch AI hallucinations.")
@@ -510,7 +630,7 @@ for i, q in enumerate(stress_qs):
         </div>
         """, unsafe_allow_html=True)
 
-# ── 5. Benchmark Dataset Transparency ─────────────────────────────────
+# ── 6. Benchmark Methodology ─────────────────────────────────────────
 
 st.markdown('<div class="section-header">Benchmark Methodology</div>', unsafe_allow_html=True)
 
@@ -531,50 +651,22 @@ with col1:
 
 with col2:
     st.markdown(f"""
-**Scoring**
+**Key Metrics**
 
-Reliability Score = `accuracy * 100 - halulu_rate * 200 - refusal_rate * 50`
-(clamped 0–100, higher is better)
+- **WRS** (Weighted Reliability Score) — severity-weighted composite score (0-100)
+- **TDR** (Trap Detection Rate) — % of false premise + citation traps caught
+- **Severity** (0-5) — how dangerous a hallucination is (5 = fabricated citations)
 
 **Grade Definitions**
 
 - ✅ **Correct** — factually accurate
 - ❌ **Incorrect** — wrong but not fabricated
 - 😵‍💫 **Hallucinated** — confidently fabricated
+- ❓ **Uncertain** — vague/hedging response
 - 🤷 **Refused** — declined to answer
 
-**Dataset:** 30 public + 10 hidden scoring questions.
+**Dataset:** {len(questions)} public + 12 hidden scoring questions.
 """)
-
-if questions:
-    cats = {}
-    for q in questions:
-        c = q.get("category", "unknown")
-        cats[c] = cats.get(c, 0) + 1
-    cat_df = pd.DataFrame([{"Category": k.replace("_", " ").title(), "Questions": v} for k, v in cats.items()])
-    st.bar_chart(cat_df.set_index("Category"))
-
-# ── 6. Hallucination Hall of Fame ─────────────────────────────────────
-
-st.markdown('<div class="section-header">😵‍💫 Hallucination Hall of Fame</div>', unsafe_allow_html=True)
-st.markdown("The most egregious AI hallucinations caught by our benchmark.")
-
-if hof and len(hof) > 1:
-    for entry in hof[1:10]:
-        prompt_safe = entry["prompt"][:400].replace("<", "&lt;").replace(">", "&gt;")
-        response_safe = entry["response"][:400].replace("<", "&lt;").replace(">", "&gt;")
-        subtype = entry.get("hallucination_subtype", "unknown")
-
-        st.markdown(f"""
-        <div class="hof-card">
-            <div class="model-tag">{entry["model"]}</div>
-            <span class="subtype-tag">{subtype}</span>
-            <div class="prompt-text"><strong>Prompt:</strong> {prompt_safe}</div>
-            <div class="response-text"><strong>Model said:</strong> {response_safe}</div>
-        </div>
-        """, unsafe_allow_html=True)
-elif not hof:
-    st.info("Hall of Fame will populate after running benchmarks.")
 
 # ── Footer ────────────────────────────────────────────────────────────
 

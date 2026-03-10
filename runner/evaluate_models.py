@@ -26,6 +26,7 @@ GRADE_ICONS = {
     "incorrect": "\u274c",
     "hallucinated": "\U0001f635\u200d\U0001f4ab",
     "refused": "\U0001f937",
+    "uncertain": "\u2753",
 }
 
 
@@ -88,6 +89,7 @@ def run_evaluation(
                 "grade": grade_result.grade,
                 "hallucination_subtype": grade_result.hallucination_subtype,
                 "confidence": grade_result.confidence,
+                "severity": grade_result.severity,
                 "explanation": grade_result.explanation,
                 "latency_ms": resp.latency_ms,
             }
@@ -119,8 +121,11 @@ def run_evaluation(
             print(f"  Accuracy:          {metrics.accuracy_rate:.1%}")
             print(f"  Halulu Rate:       {metrics.hallucination_rate:.1%}")
             print(f"  Refusal Rate:      {metrics.refusal_rate:.1%}")
+            print(f"  Uncertain Rate:    {metrics.uncertain_rate:.1%}")
+            print(f"  Trap Detection:    {metrics.trap_detection_rate:.1%}")
+            print(f"  Avg Severity:      {metrics.avg_severity:.1f}/5")
             print(f"  Avg Latency:       {metrics.avg_latency_ms:.0f}ms")
-            print(f"  Reliability Score: {score:.1f}/100")
+            print(f"  WRS:               {metrics.wrs:.1f}/100")
             if cost is not None:
                 print(f"  Est. Cost/100q:    ${cost:.2f}")
             if errors:

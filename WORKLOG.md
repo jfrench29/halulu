@@ -1,5 +1,54 @@
 # Halulu AI Reliability Index — Work Log
 
+## 2026-03-09: Evaluation Architecture v2 — Severity, WRS, and Dashboard Redesign
+
+### What Changed
+
+**New Metrics & Scoring:**
+- **WRS (Weighted Reliability Score):** Replaces flat `accuracy*100 - hallu*200 - refusal*50` formula. New: `accuracy*100 - hallu_rate*severity_weight - refusal_rate*25` where severity_weight scales 50-100 based on avg hallucination severity. Fabricated citations penalized harder than minor numerical errors.
+- **TDR (Trap Detection Rate):** % of false_premise + citation_trap questions correctly identified. Measures a distinct capability from general accuracy.
+- **Hallucination Severity (0-5):** 0=none, 1=minor, 2=moderate, 3=significant, 4=dangerous, 5=egregious. Assigned by category and hallucination subtype.
+- **Uncertain classification:** New result type for vague/hedging responses. Prevents "I'm not sure" from being graded as hallucinated.
+
+**Grading Changes:**
+- `false_premise.py` and `citation_trap.py`: Vague responses now return "uncertain" (was "hallucinated")
+- All graders assign severity scores on incorrect/hallucinated results
+- `classify_severity()` in normalization.py routes by category + subtype
+
+**Dataset Expansion:** 40 → 49 public questions
+- +4 summarization (Kubernetes, JWST, zero-knowledge proofs)
+- +3 document_grounded (Project Meridian, Solaris X1 EV, NovaBio trial)
+- +2 citation_trap (fake IEEE paper, fake JAMA study)
+- +1 numerical (Tokyo metro population)
+
+**Dashboard Redesign:**
+- REMOVED: Hallucination of the Week, Hall of Fame, Questions per Category bar chart
+- ADDED: Category Accuracy Heatmap (model × category grid), Model Spotlight (SVG radar chart), Cost Efficiency table (WRS per $1)
+- UPDATED: Leaderboard shows WRS, TDR, Avg Severity; methodology section updated
+
+**DB Schema:**
+- Added `severity INTEGER DEFAULT 0` column to eval_results (auto-migrated)
+
+**Tests:** 50 → 76 (added severity scoring, uncertain classification, WRS/TDR metric tests)
+
+### Files Modified
+- `grading/schemas.py` — UNCERTAIN enum, severity field, SEVERITY_SCALE
+- `grading/normalization.py` — detect_vague(), classify_severity(), VAGUE_PHRASES
+- `grading/graders/{false_premise,citation_trap}.py` — uncertain + severity
+- `grading/graders/{closed_factual,document_grounded,summarization,numerical}.py` — severity
+- `grading/metrics.py` — WRS, TDR, uncertain rate, avg_severity
+- `storage/db.py` — severity column + migration
+- `runner/evaluate_models.py` — severity passthrough, uncertain icon
+- `dataset/public_tests.json` — 40 → 49 questions
+- `tests/test_graders.py` — 50 → 76 tests
+- `dashboard/streamlit_app.py` — full redesign
+
+### Rationale for Removing Dashboard Sections
+- **Hall of Fame / Hallucination of the Week:** Risk of reducing trust if grading has any false positives. Removed until confidence is higher.
+- **Bar chart (Questions per Category):** Internal QA metric, not useful for end users. Replaced with Category Accuracy Heatmap.
+
+---
+
 ## 2026-03-09: Grading System Audit
 
 ### Overall Assessment

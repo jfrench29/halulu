@@ -11,17 +11,10 @@ import re
 from grading.normalization import normalize_text, detect_refusal
 from grading.schemas import GradeResult
 
-# Facts shorter than this get word-boundary matching instead of plain `in`
 _BOUNDARY_THRESHOLD = 5
 
 
 def _fact_in_response(norm_fact: str, norm_resp: str) -> bool:
-    """Check if a normalized fact appears in a normalized response.
-
-    Short facts (< 5 chars) use word-boundary regex to prevent
-    substring false positives (e.g., "Au" matching "automatic").
-    Longer facts use plain substring matching.
-    """
     if not norm_fact:
         return False
     if len(norm_fact) < _BOUNDARY_THRESHOLD:
@@ -38,7 +31,6 @@ def grade_closed_factual(test_case: dict, response: str) -> GradeResult:
 
     norm_resp = normalize_text(response)
 
-    # Check reference_facts first
     for fact in reference_facts:
         norm_fact = normalize_text(fact)
         if _fact_in_response(norm_fact, norm_resp):
@@ -48,7 +40,6 @@ def grade_closed_factual(test_case: dict, response: str) -> GradeResult:
                 details={"matched_behavior": "exact_match"},
             )
 
-    # Fallback: check correct_answer directly
     norm_ans = normalize_text(answer)
     if _fact_in_response(norm_ans, norm_resp):
         return GradeResult(
@@ -59,5 +50,6 @@ def grade_closed_factual(test_case: dict, response: str) -> GradeResult:
 
     return GradeResult(
         result="incorrect",
+        severity=2,
         reason=f"Expected '{answer}', not found in response",
     )

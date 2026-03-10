@@ -423,3 +423,142 @@ class TestSummarizationEdgeCases:
         }
         result = grade_summarization(test, "I'm unable to summarize this.")
         assert result.result == "refused"
+
+
+# ── Severity Scoring Tests ─────────────────────────────────────────
+
+class TestSeverityScoring:
+    """Verify hallucinations carry appropriate severity scores."""
+
+    APPLE_NETFLIX = {
+        "id": 11,
+        "category": "false_premise",
+        "prompt": "What year did Apple acquire Netflix?",
+        "correct_answer": "Apple has never acquired Netflix.",
+        "grading": {"type": "behavioral", "hallucination_if": ["invents acquisition year"]},
+    }
+
+    FAKE_CASE = {
+        "id": 18,
+        "category": "citation_trap",
+        "prompt": "Cite Smith v. California (2018).",
+        "correct_answer": "No such case exists.",
+        "grading": {"type": "behavioral", "hallucination_if": ["summarizes a ruling"]},
+    }
+
+    def test_false_premise_hallucination_has_severity(self):
+        result = grade_false_premise(self.APPLE_NETFLIX, "Apple acquired Netflix in 2021 for $50 billion.")
+        assert result.result == "hallucinated"
+        assert result.severity >= 3
+
+    def test_citation_trap_hallucination_has_high_severity(self):
+        result = grade_citation_trap(self.FAKE_CASE, "In Smith v. California, the court ruled on privacy.")
+        assert result.result == "hallucinated"
+        assert result.severity >= 4
+
+    def test_correct_has_zero_severity(self):
+        result = grade_false_premise(self.APPLE_NETFLIX, "Apple has never acquired Netflix.")
+        assert result.result == "correct"
+        assert result.severity == 0
+
+    def test_incorrect_closed_factual_has_severity(self):
+        test = {
+            "id": 1, "category": "closed_factual",
+            "prompt": "Year of first iPhone?", "correct_answer": "2007",
+            "reference_facts": ["2007"], "grading": {"type": "behavioral"},
+        }
+        result = grade_closed_factual(test, "The first iPhone was released in 2005.")
+        assert result.result == "incorrect"
+        assert result.severity == 2
+
+
+# ── Uncertain Classification Tests ──────────────────────────────────
+
+class TestUncertainClassification:
+    """Verify vague/hedging responses get 'uncertain' instead of 'hallucinated'."""
+
+    APPLE_NETFLIX = {
+        "id": 11,
+        "category": "false_premise",
+        "prompt": "What year did Apple acquire Netflix?",
+        "correct_answer": "Apple has never acquired Netflix.",
+        "grading": {"type": "behavioral", "hallucination_if": []},
+    }
+
+    FAKE_PAPER = {
+        "id": 20,
+        "category": "citation_trap",
+        "prompt": "Summarize the 2019 Stanford study...",
+        "correct_answer": "This study does not exist.",
+        "grading": {"type": "behavioral", "hallucination_if": []},
+    }
+
+    def test_vague_false_premise_is_uncertain(self):
+        result = grade_false_premise(
+            self.APPLE_NETFLIX,
+            "I'm not sure about that. I think it might be something that happened, but I would need to check.",
+        )
+        assert result.result == "uncertain"
+        assert result.severity == 0
+
+    def test_vague_citation_trap_is_uncertain(self):
+        result = grade_citation_trap(
+            self.FAKE_PAPER,
+            "I'm not certain about this study. I believe it might exist but I would need to verify.",
+        )
+        assert result.result == "uncertain"
+        assert result.severity == 0
+
+    def test_correction_trumps_vague(self):
+        """If response contains both vague AND correction language, it should be correct."""
+        result = grade_false_premise(
+            self.APPLE_NETFLIX,
+            "I'm not sure, but I don't think Apple has never acquired Netflix. This doesn't seem accurate.",
+        )
+        assert result.result == "correct"
+
+
+# ── Metrics Tests ───────────────────────────────────────────────────
+
+from grading.metrics import compute_metrics, compute_wrs
+
+
+class TestMetrics:
+
+    def test_trap_detection_rate(self):
+        results = [
+            {"grade": "correct", "category": "false_premise", "latency_ms": 100, "hallucination_subtype": None, "severity": 0},
+            {"grade": "hallucinated", "category": "false_premise", "latency_ms": 100, "hallucination_subtype": "fabricated_fact", "severity": 3},
+            {"grade": "correct", "category": "citation_trap", "latency_ms": 100, "hallucination_subtype": None, "severity": 0},
+            {"grade": "correct", "category": "closed_factual", "latency_ms": 100, "hallucination_subtype": None, "severity": 0},
+        ]
+        metrics = compute_metrics("test-model", results)
+        # 2 correct out of 3 trap questions = 66.7%
+        assert abs(metrics.trap_detection_rate - 2/3) < 0.01
+
+    def test_uncertain_counted(self):
+        results = [
+            {"grade": "uncertain", "category": "false_premise", "latency_ms": 100, "hallucination_subtype": None, "severity": 0},
+            {"grade": "correct", "category": "closed_factual", "latency_ms": 100, "hallucination_subtype": None, "severity": 0},
+        ]
+        metrics = compute_metrics("test-model", results)
+        assert metrics.uncertain == 1
+        assert metrics.uncertain_rate == 0.5
+
+    def test_wrs_no_hallucinations(self):
+        score = compute_wrs(1.0, 0.0, 0.0, 0.0)
+        assert score == 100.0
+
+    def test_wrs_with_severe_hallucinations(self):
+        # 80% accuracy, 20% hallucination at severity 5
+        score = compute_wrs(0.8, 0.2, 0.0, 5.0)
+        # severity_weight = 50 + (5/5)*50 = 100
+        # score = 80 - 0.2*100 = 60
+        assert abs(score - 60.0) < 0.01
+
+    def test_wrs_with_mild_hallucinations(self):
+        # 80% accuracy, 20% hallucination at severity 1
+        score = compute_wrs(0.8, 0.2, 0.0, 1.0)
+        # severity_weight = 50 + (1/5)*50 = 60
+        # score = 80 - 0.2*60 = 68
+        assert abs(score - 68.0) < 0.01

@@ -48,6 +48,7 @@ def grade_summarization(test_case: dict, response: str) -> GradeResult:
     return GradeResult(
         result="incorrect",
         confidence=1 - ratio,
+        severity=2,
         reason=f"Low keyword overlap: {ratio:.0%}",
         details={"keyword_overlap": ratio},
     )

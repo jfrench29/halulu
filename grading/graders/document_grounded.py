@@ -15,7 +15,6 @@ _BOUNDARY_THRESHOLD = 5
 
 
 def _fact_in_response(norm_fact: str, norm_resp: str) -> bool:
-    """Word-boundary match for short facts, substring match for longer ones."""
     if not norm_fact:
         return False
     if len(norm_fact) < _BOUNDARY_THRESHOLD:
@@ -41,7 +40,6 @@ def grade_document_grounded(test_case: dict, response: str) -> GradeResult:
                 details={"matched_behavior": "answer_from_document"},
             )
 
-    # Fallback to correct_answer
     norm_ans = normalize_text(answer)
     if _fact_in_response(norm_ans, norm_resp):
         return GradeResult(
@@ -52,5 +50,6 @@ def grade_document_grounded(test_case: dict, response: str) -> GradeResult:
 
     return GradeResult(
         result="incorrect",
+        severity=3,
         reason=f"Expected grounded answer '{answer}', not found in response",
     )

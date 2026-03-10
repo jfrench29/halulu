@@ -264,6 +264,7 @@ MODEL_COST_PER_100: dict[str, float] = {
     "claude-sonnet-4-20250514": 0.36,
     "claude-haiku-4-5-20251001": 0.05,
     "gemini-2.5-pro": 0.25,
+    "gemini-2.5-pro-preview-05-06": 0.25,
     "gemini-2.5-flash": 0.02,
     "gemini-2.0-flash": 0.01,
     "grok-3-mini": 0.02,

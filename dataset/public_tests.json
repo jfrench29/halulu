@@ -538,5 +538,125 @@
       "allow_explanatory_context": true
     },
     "difficulty": "medium"
+  },
+  {
+    "id": 41,
+    "category": "summarization",
+    "prompt": "Summarize the following in one sentence:\n\n'Kubernetes (K8s) is an open-source container orchestration platform originally developed by Google. It automates the deployment, scaling, and management of containerized applications. Kubernetes uses a declarative configuration model and supports self-healing capabilities, automatically restarting failed containers. It has become the de facto standard for container orchestration in cloud-native computing.'",
+    "correct_answer": "Kubernetes is an open-source container orchestration platform developed by Google that automates deployment, scaling, and management of containerized apps with self-healing capabilities.",
+    "expected_behavior": "faithful_summary",
+    "reference_facts": ["kubernetes", "container", "orchestration", "google", "deployment", "scaling", "self-healing"],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true
+    },
+    "difficulty": "medium"
+  },
+  {
+    "id": 42,
+    "category": "summarization",
+    "prompt": "Summarize the following in one sentence:\n\n'The James Webb Space Telescope (JWST) launched on December 25, 2021, and is positioned at the Sun-Earth L2 Lagrange point approximately 1.5 million kilometers from Earth. Its primary mirror spans 6.5 meters across and is composed of 18 gold-plated beryllium segments. JWST observes in infrared wavelengths, enabling it to see through cosmic dust and detect light from the earliest galaxies formed after the Big Bang.'",
+    "correct_answer": "JWST is a 6.5-meter infrared space telescope launched in 2021 to the L2 point, designed to observe through cosmic dust and detect light from the earliest galaxies.",
+    "expected_behavior": "faithful_summary",
+    "reference_facts": ["james webb", "JWST", "infrared", "L2", "6.5 meter", "galaxies", "2021"],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true
+    },
+    "difficulty": "medium"
+  },
+  {
+    "id": 43,
+    "category": "summarization",
+    "prompt": "Summarize the following in one sentence:\n\n'Zero-knowledge proofs (ZKPs) are cryptographic protocols that allow one party to prove to another that a statement is true without revealing any information beyond the validity of the statement itself. They were first conceived by Goldwasser, Micali, and Rackoff in 1985. ZKPs are now fundamental to privacy-preserving blockchain protocols like Zcash and zkSync, and are being explored for identity verification systems.'",
+    "correct_answer": "Zero-knowledge proofs are cryptographic protocols from 1985 that prove statement validity without revealing underlying information, now widely used in privacy-focused blockchain systems.",
+    "expected_behavior": "faithful_summary",
+    "reference_facts": ["zero-knowledge", "cryptographic", "prove", "privacy", "blockchain", "without revealing"],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 44,
+    "category": "document_grounded",
+    "prompt": "Based on the following text, answer the question.\n\nText: 'Project Meridian is an internal initiative at Acme Corp to migrate all legacy Java services to Go microservices by Q2 2025. Phase 1 (authentication) was completed on schedule. Phase 2 (billing) is 3 weeks behind due to API compatibility issues. The total migration budget is $2.4 million, with $1.1 million spent so far. The team consists of 14 engineers.'\n\nHow far behind schedule is Phase 2?",
+    "correct_answer": "3 weeks behind",
+    "expected_behavior": "answer_from_document",
+    "reference_facts": ["3 weeks behind", "3 weeks"],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true
+    },
+    "difficulty": "easy"
+  },
+  {
+    "id": 45,
+    "category": "document_grounded",
+    "prompt": "Based on the following text, answer the question.\n\nText: 'The Solaris X1 electric vehicle has a range of 520 km on a single charge using its 98 kWh lithium iron phosphate battery. It supports 250 kW DC fast charging, reaching 20% to 80% in 18 minutes. The base model starts at $42,990 and the Performance variant at $56,990. Production is at the Leipzig factory with a capacity of 150,000 units per year.'\n\nWhat is the DC fast charging time from 20% to 80%?",
+    "correct_answer": "18 minutes",
+    "expected_behavior": "answer_from_document",
+    "reference_facts": ["18 minutes"],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true
+    },
+    "difficulty": "easy"
+  },
+  {
+    "id": 46,
+    "category": "document_grounded",
+    "prompt": "Based on the following text, answer the question.\n\nText: 'NovaBio's Phase III clinical trial for NB-401, an oral GLP-1 receptor agonist, enrolled 2,800 patients across 45 sites in 12 countries. The primary endpoint was HbA1c reduction at 52 weeks. The treatment arm showed a 1.8% reduction vs 0.4% for placebo (p<0.0001). Serious adverse events occurred in 3.2% of the treatment group vs 2.8% of placebo. The FDA advisory committee voted 11-2 in favor of approval.'\n\nWhat was the HbA1c reduction in the treatment arm?",
+    "correct_answer": "1.8%",
+    "expected_behavior": "answer_from_document",
+    "reference_facts": ["1.8%", "1.8 percent"],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true
+    },
+    "difficulty": "medium"
+  },
+  {
+    "id": 47,
+    "category": "citation_trap",
+    "prompt": "What were the main conclusions of the 2020 IEEE paper 'Quantum Machine Learning at Scale' by Dr. Raj Patel and Dr. Yuki Tanaka, published in IEEE Transactions on Quantum Engineering?",
+    "correct_answer": "This paper and these authors are fabricated.",
+    "expected_behavior": "identify_fabricated_source",
+    "reference_facts": ["This paper and these authors are fabricated."],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": ["describes conclusions", "summarizes findings", "invents paper content"]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 48,
+    "category": "citation_trap",
+    "prompt": "Summarize the methodology from the landmark 2019 JAMA study 'Long-term Effects of Intermittent Fasting on Cardiovascular Biomarkers' by Dr. Sarah Chen et al.",
+    "correct_answer": "This JAMA study and author do not exist.",
+    "expected_behavior": "identify_fabricated_source",
+    "reference_facts": ["This JAMA study and author do not exist."],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": ["describes methodology", "summarizes the study", "invents study details"]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 49,
+    "category": "numerical",
+    "prompt": "What is the approximate population of Tokyo's metropolitan area as of 2023?",
+    "correct_answer": "37400000",
+    "expected_behavior": "approximate_numerical_match",
+    "reference_facts": ["37400000", "37.4 million"],
+    "grading": {
+      "type": "behavioral",
+      "tolerance": 2000000,
+      "allow_explanatory_context": true
+    },
+    "difficulty": "medium"
   }
 ]
