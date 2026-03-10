@@ -11,7 +11,6 @@ import logging
 import os
 import sqlite3
 import threading
-import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -118,15 +117,6 @@ class ResultsDB:
                 latency_ms REAL,
                 timestamp TEXT NOT NULL
             )""",
-            f"""CREATE TABLE IF NOT EXISTS hall_of_fame (
-                id {serial},
-                model TEXT NOT NULL,
-                test_id INTEGER NOT NULL,
-                prompt TEXT NOT NULL,
-                response TEXT NOT NULL,
-                hallucination_subtype TEXT,
-                added_at TEXT NOT NULL
-            )""",
             "CREATE INDEX IF NOT EXISTS idx_results_run ON eval_results(run_id)",
             "CREATE INDEX IF NOT EXISTS idx_results_model ON eval_results(model)",
             "CREATE INDEX IF NOT EXISTS idx_results_grade ON eval_results(grade)",
@@ -207,22 +197,6 @@ class ResultsDB:
         """Insert a single result. Prefer save_results_batch for bulk inserts."""
         self.save_results_batch([kwargs])
 
-    def add_to_hall_of_fame(
-        self,
-        model: str,
-        test_id: int,
-        prompt: str,
-        response: str,
-        hallucination_subtype: str | None,
-    ):
-        with self._conn() as conn:
-            conn.cursor().execute(
-                f"""INSERT INTO hall_of_fame
-                (model, test_id, prompt, response, hallucination_subtype, added_at)
-                VALUES ({self._ph(6)})""",
-                (model, test_id, prompt, response, hallucination_subtype, _utcnow()),
-            )
-
     # ------------------------------------------------------------------
     # Reads — all bounded with LIMIT
     # ------------------------------------------------------------------
@@ -231,8 +205,8 @@ class ResultsDB:
         with self._conn() as conn:
             cur = conn.cursor()
             cur.execute(
-                f"SELECT * FROM eval_results WHERE run_id = {self._placeholder} LIMIT {limit}",
-                (run_id,),
+                f"SELECT * FROM eval_results WHERE run_id = {self._placeholder} LIMIT {self._placeholder}",
+                (run_id, limit),
             )
             return self._fetchall_dicts(cur)
 
@@ -240,21 +214,18 @@ class ResultsDB:
         with self._conn() as conn:
             cur = conn.cursor()
             cur.execute(
-                f"SELECT * FROM eval_results WHERE model = {self._placeholder} ORDER BY timestamp DESC LIMIT {limit}",
-                (model,),
+                f"SELECT * FROM eval_results WHERE model = {self._placeholder} ORDER BY timestamp DESC LIMIT {self._placeholder}",
+                (model, limit),
             )
             return self._fetchall_dicts(cur)
 
     def get_all_runs(self, limit: int = 100) -> list[dict]:
         with self._conn() as conn:
             cur = conn.cursor()
-            cur.execute(f"SELECT * FROM eval_runs ORDER BY timestamp DESC LIMIT {limit}")
-            return self._fetchall_dicts(cur)
-
-    def get_hall_of_fame(self, limit: int = 50) -> list[dict]:
-        with self._conn() as conn:
-            cur = conn.cursor()
-            cur.execute(f"SELECT * FROM hall_of_fame ORDER BY added_at DESC LIMIT {limit}")
+            cur.execute(
+                f"SELECT * FROM eval_runs ORDER BY timestamp DESC LIMIT {self._placeholder}",
+                (limit,),
+            )
             return self._fetchall_dicts(cur)
 
     def get_model_names(self) -> list[str]:
@@ -272,31 +243,25 @@ class ResultsDB:
             cur = conn.cursor()
 
             if self._is_postgres:
-                # Use window function (Postgres)
-                cur.execute("""
-                    SELECT * FROM (
-                        SELECT er.*,
-                               ROW_NUMBER() OVER (
-                                   PARTITION BY er.model
-                                   ORDER BY er.timestamp DESC
-                               ) AS _latest_run_rank
-                        FROM eval_results er
-                        INNER JOIN (
-                            SELECT model, MAX(run_id) AS latest_run
-                            FROM eval_results
-                            GROUP BY model
-                        ) lr ON er.model = lr.model AND er.run_id = lr.latest_run
-                    ) ranked WHERE _latest_run_rank <= 500
-                """)
-            else:
-                # SQLite-compatible: subquery approach
+                # DISTINCT ON gives the latest row per model by timestamp
                 cur.execute("""
                     SELECT er.* FROM eval_results er
                     INNER JOIN (
-                        SELECT model, run_id FROM eval_results
-                        GROUP BY model
-                        HAVING timestamp = MAX(timestamp)
+                        SELECT DISTINCT ON (model) model, run_id
+                        FROM eval_results
+                        ORDER BY model, timestamp DESC
                     ) latest ON er.model = latest.model AND er.run_id = latest.run_id
+                """)
+            else:
+                # SQLite: correlated subquery for the latest run per model
+                cur.execute("""
+                    SELECT er.* FROM eval_results er
+                    WHERE er.run_id = (
+                        SELECT e2.run_id FROM eval_results e2
+                        WHERE e2.model = er.model
+                        ORDER BY e2.timestamp DESC
+                        LIMIT 1
+                    )
                 """)
 
             rows = self._fetchall_dicts(cur)
@@ -307,47 +272,6 @@ class ResultsDB:
                 row.pop("_latest_run_rank", None)
                 out.setdefault(row["model"], []).append(row)
             return out
-
-    def get_trend_data(self, models: list[str] | None = None, days: int = 90) -> list[dict]:
-        """Server-side aggregation for trend charts. Returns per-model, per-date stats."""
-        with self._conn() as conn:
-            cur = conn.cursor()
-
-            date_func = "DATE(timestamp)" if self._is_postgres else "DATE(timestamp)"
-
-            if models:
-                placeholders = ", ".join([self._placeholder] * len(models))
-                cur.execute(
-                    f"""SELECT
-                            {date_func} AS eval_date,
-                            model,
-                            COUNT(*) AS total,
-                            SUM(CASE WHEN grade = 'correct' THEN 1 ELSE 0 END) AS correct,
-                            SUM(CASE WHEN grade = 'hallucinated' THEN 1 ELSE 0 END) AS hallucinated,
-                            SUM(CASE WHEN grade = 'refused' THEN 1 ELSE 0 END) AS refused
-                        FROM eval_results
-                        WHERE model IN ({placeholders})
-                        GROUP BY {date_func}, model
-                        ORDER BY eval_date DESC
-                        LIMIT 1000""",
-                    tuple(models),
-                )
-            else:
-                cur.execute(
-                    f"""SELECT
-                            {date_func} AS eval_date,
-                            model,
-                            COUNT(*) AS total,
-                            SUM(CASE WHEN grade = 'correct' THEN 1 ELSE 0 END) AS correct,
-                            SUM(CASE WHEN grade = 'hallucinated' THEN 1 ELSE 0 END) AS hallucinated,
-                            SUM(CASE WHEN grade = 'refused' THEN 1 ELSE 0 END) AS refused
-                        FROM eval_results
-                        GROUP BY {date_func}, model
-                        ORDER BY eval_date DESC
-                        LIMIT 1000"""
-                )
-
-            return self._fetchall_dicts(cur)
 
     def get_result_count(self) -> int:
         with self._conn() as conn:

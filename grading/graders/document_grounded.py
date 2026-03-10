@@ -6,20 +6,8 @@ Uses word-boundary matching for short facts to prevent substring collisions.
 
 from __future__ import annotations
 
-import re
-
-from grading.normalization import normalize_text, detect_refusal
+from grading.normalization import normalize_text, detect_refusal, fact_in_response
 from grading.schemas import GradeResult
-
-_BOUNDARY_THRESHOLD = 5
-
-
-def _fact_in_response(norm_fact: str, norm_resp: str) -> bool:
-    if not norm_fact:
-        return False
-    if len(norm_fact) < _BOUNDARY_THRESHOLD:
-        return bool(re.search(r"\b" + re.escape(norm_fact) + r"\b", norm_resp))
-    return norm_fact in norm_resp
 
 
 def grade_document_grounded(test_case: dict, response: str) -> GradeResult:
@@ -33,7 +21,7 @@ def grade_document_grounded(test_case: dict, response: str) -> GradeResult:
 
     for fact in reference_facts:
         norm_fact = normalize_text(fact)
-        if _fact_in_response(norm_fact, norm_resp):
+        if fact_in_response(norm_fact, norm_resp):
             return GradeResult(
                 result="correct",
                 reason=f"Response contains grounded fact: '{fact}'",
@@ -41,7 +29,7 @@ def grade_document_grounded(test_case: dict, response: str) -> GradeResult:
             )
 
     norm_ans = normalize_text(answer)
-    if _fact_in_response(norm_ans, norm_resp):
+    if fact_in_response(norm_ans, norm_resp):
         return GradeResult(
             result="correct",
             reason=f"Response contains '{answer}'",

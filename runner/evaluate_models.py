@@ -13,7 +13,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from grading.grader import grade
-from grading.metrics import compute_metrics, compute_reliability_score
+from grading.metrics import compute_metrics
 from runner.model_adapters import call_model, get_cost_per_100
 from storage.db import ResultsDB
 
@@ -100,22 +100,10 @@ def run_evaluation(
                 print(f"{icon} {grade_result.grade.upper()} ({resp.latency_ms:.0f}ms)")
 
         db.save_results_batch(model_results)
-
-        for r in model_results:
-            if r["grade"] == "hallucinated":
-                db.add_to_hall_of_fame(
-                    model=model_name,
-                    test_id=r["test_id"],
-                    prompt=r["prompt"],
-                    response=r["response"],
-                    hallucination_subtype=r.get("hallucination_subtype"),
-                )
-
         all_results[model_name] = model_results
 
         if verbose:
             metrics = compute_metrics(model_name, model_results)
-            score = compute_reliability_score(metrics)
             cost = get_cost_per_100(model_name)
             print(f"\n  --- {model_name} Summary ---")
             print(f"  Accuracy:          {metrics.accuracy_rate:.1%}")

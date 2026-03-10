@@ -53,6 +53,24 @@ def normalize_text(text: str) -> str:
     return text
 
 
+# ── Fact matching ───────────────────────────────────────────────────
+
+_BOUNDARY_THRESHOLD = 5
+
+
+def fact_in_response(norm_fact: str, norm_resp: str) -> bool:
+    """Check if a normalized fact appears in a normalized response.
+
+    Uses word-boundary matching for short facts (< 5 chars) to prevent
+    substring collisions (e.g., "Au" matching inside "automatic").
+    """
+    if not norm_fact:
+        return False
+    if len(norm_fact) < _BOUNDARY_THRESHOLD:
+        return bool(re.search(r"\b" + re.escape(norm_fact) + r"\b", norm_resp))
+    return norm_fact in norm_resp
+
+
 def extract_numbers(text: str) -> list[float]:
     """Extract all plausible numbers from free text.
 

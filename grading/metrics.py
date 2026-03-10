@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 # Categories that are "traps" — model should refuse or correct, not answer
@@ -149,6 +149,3 @@ def compute_wrs(
     return max(0.0, min(100.0, score))
 
 
-def compute_reliability_score(metrics: ModelMetrics) -> float:
-    """Legacy reliability score — now just returns WRS."""
-    return metrics.wrs

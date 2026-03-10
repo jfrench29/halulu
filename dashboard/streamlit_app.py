@@ -23,7 +23,7 @@ import streamlit.components.v1 as components
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from grading.metrics import compute_metrics, compute_reliability_score
+from grading.metrics import compute_metrics
 from runner.model_adapters import get_cost_per_100
 from storage.db import ResultsDB
 
@@ -53,14 +53,7 @@ if PLAUSIBLE_ENABLED:
         height=0,
     )
 
-components.html(
-    """<head>
-    <meta property="og:title" content="Halulu - AI Reliability Index" />
-    <meta property="og:description" content="Benchmarking hallucination rates across AI models. How delusional is your AI?" />
-    <meta property="og:type" content="website" />
-    </head>""",
-    height=0,
-)
+# OG meta tags are injected at CDN level via Cloudflare Worker.
 
 # ── Theme Toggle ─────────────────────────────────────────────────────
 
@@ -326,8 +319,9 @@ st.markdown(f"""
 # ── Data Loading ──────────────────────────────────────────────────────
 
 
-@st.cache_resource(ttl=60)
+@st.cache_resource
 def get_db():
+    """Singleton DB — connection pool persists for the app's lifetime."""
     return ResultsDB()
 
 
@@ -338,7 +332,7 @@ def load_leaderboard():
     rows = []
     for model, results in results_by_model.items():
         metrics = compute_metrics(model, results)
-        score = compute_reliability_score(metrics)
+        score = metrics.wrs
         cost = get_cost_per_100(model)
         rows.append({
             "Model": model,
@@ -476,7 +470,8 @@ if leaderboard:
     body_rows = ""
     for row in leaderboard:
         breakdown = row.get("_category_breakdown", {})
-        body_rows += f"<tr><td class='model-name'>{row['Model']}</td>"
+        safe_name = row['Model'].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        body_rows += f"<tr><td class='model-name'>{safe_name}</td>"
         for cat in categories:
             cat_data = breakdown.get(cat, {})
             rate = cat_data.get("accuracy_rate", 0)
