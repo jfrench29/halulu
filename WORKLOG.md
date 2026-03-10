@@ -1,5 +1,57 @@
 # Halulu AI Reliability Index — Work Log
 
+## 2026-03-10: Model Expansion — 8 to 11 Models, GPT-4.1/5.4, o3, Grok-3, Llama 4
+
+### What Changed
+
+**New Models Added (3):**
+- **GPT-4.1** (OpenAI) — replaces GPT-4o as primary OpenAI chat model. $0.16/100q.
+- **o3** (OpenAI reasoning) — requires `max_completion_tokens` instead of `max_tokens`, no temperature support.
+- **GPT-5.4** (OpenAI reasoning) — same API constraints as o3. $2.00/100q.
+- **Grok-3** (xAI) — OpenAI-compatible API at api.x.ai. $0.36/100q.
+- **Llama 4 Maverick** (Meta/Together) — replaces Llama 3.3 70B. $0.03/100q.
+
+**OpenAI Adapter Refactor:**
+- Added `_REASONING_PREFIXES = ("o1", "o3", "o4", "gpt-5")` detection
+- Reasoning models branch to `max_completion_tokens=1024` with no temperature
+- Standard models use `max_tokens=1024` with `temperature=0`
+- Default model changed from `gpt-4o` to `gpt-4.1`
+
+**Cost Registry:** Added 11 new entries covering GPT-4.1 family, GPT-5.x family, o3, o4-mini, Grok-3/4, Gemini Flash variants, Llama 4 Maverick.
+
+**Provider Map:** Added `"o4"` and `"o1"` prefixes for OpenAI routing.
+
+### Evaluation Results (11 Models, 49 Questions)
+
+| Model | WRS | Accuracy | Hallu Rate | TDR | Cost/100q |
+|-------|-----|----------|------------|-----|-----------|
+| Claude Opus 4.6 | 95.9 | 95.9% | 0.0% | 100.0% | $1.80 |
+| Grok-3 | 93.9 | 95.9% | 2.0% | 94.1% | $0.36 |
+| GPT-4.1 | 91.8 | 93.9% | 2.0% | 94.1% | $0.16 |
+| Gemini 2.5 Pro | 90.0 | 91.8% | 2.0% | 94.1% | $0.25 |
+| Llama 4 Maverick | 87.1 | 91.8% | 4.1% | 88.2% | $0.03 |
+| Mistral Large | 84.1 | 89.8% | 6.1% | 82.4% | $0.16 |
+| Claude Haiku 4.5 | 82.2 | 85.7% | 4.1% | 88.2% | $0.05 |
+| Claude Sonnet 4.6 | 82.2 | 87.8% | 6.1% | 82.4% | $0.36 |
+| GPT-4o-mini | 76.3 | 85.7% | 10.2% | 70.6% | $0.01 |
+| GPT-5.4 | 60.4 | 77.6% | 18.4% | 47.1% | $2.00 |
+| o3 | 57.3 | 73.5% | 18.4% | 41.2% | $2.00 |
+
+### Key Findings
+- **Reasoning models underperform on hallucination benchmarks.** o3 (WRS 57.3) and GPT-5.4 (WRS 60.4) scored worst. They fabricate citations and facts with high confidence instead of hedging, triggering severe hallucination penalties.
+- **Best cost efficiency:** Llama 4 Maverick (WRS 87.1 at $0.03/100q) and GPT-4o-mini (WRS 76.3 at $0.01/100q).
+- **GPT-5.4-pro** exists but is NOT a chat model (404 on `/v1/chat/completions`). Cannot be tested with our chat-based adapter.
+
+### Model Discovery
+- Web search for model IDs is unreliable (returned `gpt-5-1` instead of `gpt-5.1`).
+- Direct API enumeration (`client.models.list()`) is the reliable approach for future updates.
+- Verified available but not yet evaluated: grok-4, gemini-3.1-pro-preview, gpt-5.2, gpt-5.3, o4-mini.
+
+### Files Modified
+- `runner/model_adapters.py` — reasoning model support, cost registry, provider map
+
+---
+
 ## 2026-03-09: Evaluation Architecture v2 — Severity, WRS, and Dashboard Redesign
 
 ### What Changed
