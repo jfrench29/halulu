@@ -57,54 +57,91 @@ components.html(
     height=0,
 )
 
+# ── Theme Toggle ─────────────────────────────────────────────────────
+
+if "dark_mode" not in st.session_state:
+    st.session_state.dark_mode = False
+
+dark = st.session_state.dark_mode
+
 # ── Custom CSS ────────────────────────────────────────────────────────
 
-st.markdown("""
+if dark:
+    _bg = "#0E1117"
+    _bg2 = "#1a1a2e"
+    _text = "#FAFAFA"
+    _text_muted = "#888"
+    _border = "#333"
+    _card_bg = "#1a1a2e"
+    _card_border = "#444"
+    _prompt_text = "#ccc"
+    _footer_color = "#666"
+    _link_color = "#888"
+    _stress_q_color = "#ccc"
+else:
+    _bg = "#FFFFFF"
+    _bg2 = "#F0F2F6"
+    _text = "#1A1A2E"
+    _text_muted = "#666"
+    _border = "#E0E0E0"
+    _card_bg = "#F8F9FA"
+    _card_border = "#DEE2E6"
+    _prompt_text = "#444"
+    _footer_color = "#999"
+    _link_color = "#666"
+    _stress_q_color = "#333"
+
+st.markdown(f"""
 <style>
     /* Hide Streamlit chrome */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    #MainMenu {{visibility: hidden;}}
+    footer {{visibility: hidden;}}
+    header {{visibility: hidden;}}
 
     /* Base */
-    .stApp { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .stApp {{
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: {_bg};
+        color: {_text};
+    }}
 
     /* Hero */
-    .hero { text-align: center; padding: 2rem 0 1rem; }
-    .hero h1 { font-size: 3rem; margin-bottom: 0.25rem; }
-    .hero .tagline { font-size: 1.2rem; color: #888; margin-bottom: 2rem; }
+    .hero {{ text-align: center; padding: 2rem 0 1rem; }}
+    .hero h1 {{ font-size: 3rem; margin-bottom: 0.25rem; color: {_text}; }}
+    .hero .tagline {{ font-size: 1.2rem; color: {_text_muted}; margin-bottom: 2rem; }}
 
     /* Stat cards */
-    .stat-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 1.5rem 0; }
-    .stat-card {
-        background: #1a1a2e;
-        border: 1px solid #333;
+    .stat-row {{ display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 1.5rem 0; }}
+    .stat-card {{
+        background: {_card_bg};
+        border: 1px solid {_card_border};
         border-radius: 12px;
         padding: 1.25rem 2rem;
         text-align: center;
         min-width: 160px;
-    }
-    .stat-card .value { font-size: 2rem; font-weight: 700; color: #fff; }
-    .stat-card .label { font-size: 0.85rem; color: #888; margin-top: 4px; }
+    }}
+    .stat-card .value {{ font-size: 2rem; font-weight: 700; color: {_text}; }}
+    .stat-card .label {{ font-size: 0.85rem; color: {_text_muted}; margin-top: 4px; }}
 
     /* Section headers */
-    .section-header {
+    .section-header {{
         font-size: 1.5rem;
         font-weight: 700;
         margin: 2.5rem 0 1rem;
         padding-bottom: 0.5rem;
-        border-bottom: 2px solid #333;
-    }
+        border-bottom: 2px solid {_border};
+        color: {_text};
+    }}
 
     /* Hall of fame cards */
-    .hof-card {
-        background: #1a1a2e;
-        border: 1px solid #444;
+    .hof-card {{
+        background: {_card_bg};
+        border: 1px solid {_card_border};
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1rem;
-    }
-    .hof-card .model-tag {
+    }}
+    .hof-card .model-tag {{
         display: inline-block;
         background: #e74c3c;
         color: white;
@@ -113,43 +150,44 @@ st.markdown("""
         font-size: 0.8rem;
         font-weight: 600;
         margin-bottom: 0.75rem;
-    }
-    .hof-card .prompt-text { color: #ccc; margin-bottom: 0.75rem; font-style: italic; }
-    .hof-card .response-text { color: #e74c3c; margin-bottom: 0.75rem; }
-    .hof-card .correct-text { color: #2ecc71; }
+    }}
+    .hof-card .prompt-text {{ color: {_prompt_text}; margin-bottom: 0.75rem; font-style: italic; }}
+    .hof-card .response-text {{ color: #e74c3c; margin-bottom: 0.75rem; }}
+    .hof-card .correct-text {{ color: #2ecc71; }}
 
     /* Stress test cards */
-    .stress-card {
-        background: #1a1a2e;
-        border: 1px solid #333;
+    .stress-card {{
+        background: {_card_bg};
+        border: 1px solid {_card_border};
         border-radius: 10px;
         padding: 1.25rem;
         margin-bottom: 0.75rem;
-    }
-    .stress-card .cat-tag {
+    }}
+    .stress-card .cat-tag {{
         display: inline-block;
         padding: 2px 8px;
         border-radius: 12px;
         font-size: 0.75rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
-    }
-    .cat-false_premise { background: #e74c3c; color: white; }
-    .cat-citation_trap { background: #e67e22; color: white; }
-    .cat-numerical { background: #3498db; color: white; }
-    .cat-closed_factual { background: #2ecc71; color: white; }
-    .cat-document_grounded { background: #9b59b6; color: white; }
-    .cat-summarization { background: #1abc9c; color: white; }
+    }}
+    .cat-false_premise {{ background: #e74c3c; color: white; }}
+    .cat-citation_trap {{ background: #e67e22; color: white; }}
+    .cat-numerical {{ background: #3498db; color: white; }}
+    .cat-closed_factual {{ background: #2ecc71; color: white; }}
+    .cat-document_grounded {{ background: #9b59b6; color: white; }}
+    .cat-summarization {{ background: #1abc9c; color: white; }}
 
     /* Footer */
-    .footer {
+    .footer {{
         text-align: center;
         padding: 3rem 0 2rem;
-        color: #666;
+        color: {_footer_color};
         font-size: 0.85rem;
-        border-top: 1px solid #333;
+        border-top: 1px solid {_border};
         margin-top: 3rem;
-    }
+    }}
+    .footer a {{ color: {_link_color}; }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -205,6 +243,17 @@ def load_sample_questions():
 
 
 # ── Hero Section ──────────────────────────────────────────────────────
+
+_toggle_col1, _toggle_col2 = st.columns([9, 1])
+with _toggle_col2:
+    if st.toggle("Dark", value=st.session_state.dark_mode, key="dark_toggle"):
+        if not st.session_state.dark_mode:
+            st.session_state.dark_mode = True
+            st.rerun()
+    else:
+        if st.session_state.dark_mode:
+            st.session_state.dark_mode = False
+            st.rerun()
 
 st.markdown("""
 <div class="hero">
@@ -266,7 +315,7 @@ if hof:
     st.markdown(f"""
     <div class="hof-card">
         <div class="model-tag">{featured["model"]}</div>
-        <span style="color: #888; font-size: 0.8rem; margin-left: 8px;">({subtype})</span>
+        <span style="color: {_text_muted}; font-size: 0.8rem; margin-left: 8px;">({subtype})</span>
         <div class="prompt-text"><strong>Prompt:</strong> {prompt_safe}</div>
         <div class="response-text"><strong>Model said:</strong> {response_safe}</div>
         <div class="correct-text"><strong>Reality:</strong> This is a hallucination.</div>
@@ -309,7 +358,7 @@ for q in stress_qs:
     st.markdown(f"""
     <div class="stress-card">
         <div class="cat-tag cat-{cat}">{cat.replace("_", " ").title()}</div>
-        <div style="color: #ccc; margin-top: 0.5rem;"><strong>Q:</strong> {prompt_safe}</div>
+        <div style="color: {_stress_q_color}; margin-top: 0.5rem;"><strong>Q:</strong> {prompt_safe}</div>
         <div style="color: #2ecc71; margin-top: 0.5rem;"><strong>Correct:</strong> {answer_safe}</div>
     </div>
     """, unsafe_allow_html=True)
@@ -374,7 +423,7 @@ if hof and len(hof) > 1:
         st.markdown(f"""
         <div class="hof-card">
             <div class="model-tag">{entry["model"]}</div>
-            <span style="color: #888; font-size: 0.8rem; margin-left: 8px;">({subtype})</span>
+            <span style="color: {_text_muted}; font-size: 0.8rem; margin-left: 8px;">({subtype})</span>
             <div class="prompt-text"><strong>Prompt:</strong> {prompt_safe}</div>
             <div class="response-text"><strong>Model said:</strong> {response_safe}</div>
         </div>
@@ -388,6 +437,6 @@ st.markdown("""
 <div class="footer">
     <strong>Halulu</strong> — AI Reliability Index<br>
     Benchmarking hallucination rates so you don't have to trust blindly.<br>
-    <a href="https://github.com/jfrench29/halulu" target="_blank" style="color: #888;">GitHub</a>
+    <a href="https://github.com/jfrench29/halulu" target="_blank" style="color: {_link_color};">GitHub</a>
 </div>
 """, unsafe_allow_html=True)
