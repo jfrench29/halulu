@@ -195,14 +195,29 @@ Refresh https://halulu.ai — the leaderboard populates immediately.
 
 ## Step 8 — Set Up Weekly Evaluations
 
-1. Railway dashboard → **+ New** → **Empty Service** → name it `eval-runner`
-2. Connect to the same GitHub repo
+The cron entry point lives in `runner/cron_evaluate.py` with all 11 models
+hardcoded. Update the `MODELS` list there when adding/removing models.
+
+1. Railway dashboard → your `halulu` project → **+ New** → **Empty Service** → name it `eval-runner`
+2. Connect to the same GitHub repo (`jfrench29/halulu`)
 3. **Settings** → **Start Command**:
    ```
-   python -m runner.evaluate_models --models gpt-4o claude-sonnet-4-20250514 gemini-2.0-flash --quiet
+   python -m runner.cron_evaluate
    ```
-4. **Settings** → **Cron Schedule**: `0 6 * * 1` (Mondays 6:00 AM UTC)
-5. Link the same environment variables (DATABASE_URL + API keys)
+4. **Settings** → **Cron Schedule**: `0 6 * * 0` (Sundays 6:00 AM UTC)
+5. Environment variables (DATABASE_URL + API keys) are shared within the
+   Railway project — verify they're visible to the new service
+
+**Current models (11):** gpt-4.1, gpt-4o-mini, o3, gpt-5.4,
+claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001,
+gemini-2.5-pro, grok-3, mistral-large-latest,
+meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
+
+**Test locally:**
+```bash
+python -m runner.cron_evaluate --dry   # print model list and exit
+python -m runner.cron_evaluate         # full run
+```
 
 ---
 
