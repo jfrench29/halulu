@@ -40,11 +40,23 @@ PLAUSIBLE_ENABLED = os.environ.get("PLAUSIBLE_ENABLED", "false").lower() == "tru
 PLAUSIBLE_DOMAIN = os.environ.get("PLAUSIBLE_DOMAIN", "halulu.ai")
 
 # ── Analytics & Meta ──────────────────────────────────────────────────
+# Primary analytics: Cloudflare Zaraz injects Plausible script at the CDN
+# layer (no iframe issues). This fallback covers direct-to-Railway access.
 
 if PLAUSIBLE_ENABLED:
     components.html(
-        f'<script defer data-domain="{PLAUSIBLE_DOMAIN}" '
-        f'src="https://plausible.io/js/script.js"></script>',
+        f"""<script>
+        var s = document.createElement('script');
+        s.defer = true;
+        s.setAttribute('data-domain', '{PLAUSIBLE_DOMAIN}');
+        s.setAttribute('data-api', 'https://plausible.io/api/event');
+        s.src = 'https://plausible.io/js/script.manual.js';
+        document.head.appendChild(s);
+        s.onload = function() {{
+            try {{ var u = window.parent.location.href; }} catch(e) {{ var u = 'https://{PLAUSIBLE_DOMAIN}'; }}
+            window.plausible('pageview', {{u: u}});
+        }};
+        </script>""",
         height=0,
     )
 
