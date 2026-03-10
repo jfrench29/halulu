@@ -376,7 +376,7 @@ with _toggle_col2:
 st.markdown(f"""
 <div class="hero">
     <h1>😵‍💫 Halulu</h1>
-    <div class="tagline">AI Reliability Index — How delusional is your AI?</div>
+    <div class="tagline">AI Reliability Index — A hallucination detection project</div>
 </div>
 """, unsafe_allow_html=True)
 
