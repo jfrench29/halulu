@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 GRADE_ICONS = {
     "correct": "\u2705",
     "wrong": "\u274c",
+    "incorrect": "\u274c",
     "hallucinated": "\U0001f635\u200d\U0001f4ab",
     "refused": "\U0001f937",
 }

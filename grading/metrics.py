@@ -11,7 +11,7 @@ class ModelMetrics:
     model: str
     total: int
     correct: int
-    wrong: int
+    incorrect: int
     hallucinated: int
     refused: int
     accuracy_rate: float
@@ -36,7 +36,7 @@ def compute_metrics(
             model=model,
             total=0,
             correct=0,
-            wrong=0,
+            incorrect=0,
             hallucinated=0,
             refused=0,
             accuracy_rate=0.0,
@@ -49,7 +49,7 @@ def compute_metrics(
 
     grade_counts = Counter(r["grade"] for r in results)
     correct = grade_counts.get("correct", 0)
-    wrong = grade_counts.get("wrong", 0)
+    incorrect = grade_counts.get("incorrect", 0) + grade_counts.get("wrong", 0)
     hallucinated = grade_counts.get("hallucinated", 0)
     refused = grade_counts.get("refused", 0)
 
@@ -72,7 +72,7 @@ def compute_metrics(
         model=model,
         total=total,
         correct=correct,
-        wrong=wrong,
+        incorrect=incorrect,
         hallucinated=hallucinated,
         refused=refused,
         accuracy_rate=accuracy_rate,

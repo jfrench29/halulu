@@ -344,7 +344,7 @@ with col2:
 
     **Grade Definitions**
     - ✅ **Correct** — factually accurate response
-    - ❌ **Wrong** — incorrect but not fabricated
+    - ❌ **Incorrect** — wrong but not fabricated
     - 😵‍💫 **Hallucinated** — confidently fabricated
     - 🤷 **Refused** — declined to answer
 
