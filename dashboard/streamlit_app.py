@@ -106,6 +106,32 @@ else:
 
 # ── Custom CSS ────────────────────────────────────────────────────────
 
+# Dataframe overrides only needed in dark mode (Glide Data Grid has white defaults)
+_df_dark_css = ""
+if dark:
+    _df_dark_css = f"""
+    [data-testid="stDataFrame"] {{
+        background: transparent !important;
+    }}
+    .stDataFrame [data-testid="StyledDataFrameDataCell"],
+    .stDataFrame [data-testid="StyledDataFrameCornerCell"],
+    .stDataFrame [data-testid="StyledDataFrameRowHeaderCell"] {{
+        background-color: {_card_bg} !important;
+        color: {_text} !important;
+    }}
+    .stDataFrame [data-testid="StyledDataFrameHeaderCell"] {{
+        background-color: {_table_header_bg} !important;
+        color: {_text} !important;
+        font-weight: 600;
+    }}
+    .stDataFrame div[data-testid="glideDataEditor"] {{
+        background-color: {_card_bg} !important;
+    }}
+    .stDataFrame .dvn-scroller {{
+        background-color: {_card_bg} !important;
+    }}
+    """
+
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -198,27 +224,7 @@ st.markdown(f"""
         border-radius: 8px;
         overflow: hidden;
     }}
-    /* ── Dataframe dark-mode cell overrides ──────────────────── */
-    [data-testid="stDataFrame"] {{
-        background: transparent !important;
-    }}
-    .stDataFrame [data-testid="StyledDataFrameDataCell"],
-    .stDataFrame [data-testid="StyledDataFrameCornerCell"],
-    .stDataFrame [data-testid="StyledDataFrameRowHeaderCell"] {{
-        background-color: {_card_bg} !important;
-        color: {_text} !important;
-    }}
-    .stDataFrame [data-testid="StyledDataFrameHeaderCell"] {{
-        background-color: {_table_header_bg} !important;
-        color: {_text} !important;
-        font-weight: 600;
-    }}
-    .stDataFrame div[data-testid="glideDataEditor"] {{
-        background-color: {_card_bg} !important;
-    }}
-    .stDataFrame .dvn-scroller {{
-        background-color: {_card_bg} !important;
-    }}
+    {_df_dark_css}
 
     /* ── Heatmap ──────────────────────────────────────────────── */
     .heatmap-table {{
