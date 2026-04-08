@@ -415,6 +415,7 @@ MODEL_COST_PER_100: dict[str, float] = {
     "o3": 2.00,                # $2/$8 per 1M tokens (reasoning)
     "o4-mini": 0.22,           # $1.10/$4.40 per 1M tokens (reasoning)
     "gpt-5.4": 2.00,           # reasoning model
+    "gpt-5.4-mini": 0.10,     # $0.75/$4.50 per 1M tokens
     "gpt-5": 1.50,             # reasoning model
     "gpt-5-mini": 0.15,        # reasoning model
     # Anthropic
@@ -427,10 +428,13 @@ MODEL_COST_PER_100: dict[str, float] = {
     "gemini-2.5-pro": 0.25,
     "gemini-2.5-flash": 0.02,
     "gemini-2.0-flash": 0.01,
+    "gemini-3-flash-preview": 0.07,  # $0.50/$3.00 per 1M tokens
     # xAI
     "grok-3": 0.36,            # $3/$15 per 1M tokens
     "grok-3-mini": 0.02,       # $0.30/$0.50 per 1M tokens
     "grok-4": 0.36,            # $3/$15 per 1M tokens
+    "grok-4.20-0309-non-reasoning": 0.16, # $2/$6 per 1M tokens
+    "grok-4.20-0309-reasoning": 0.16,     # $2/$6 per 1M tokens
     # Mistral
     "mistral-large-latest": 0.16,
     # Meta / Together

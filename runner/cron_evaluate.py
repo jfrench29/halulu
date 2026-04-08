@@ -33,26 +33,29 @@ MODELS = [
     "gpt-4o-mini",
     "o3",
     "gpt-5.4",
+    "gpt-5.4-mini",
     # Anthropic
     "claude-opus-4-6",
     "claude-sonnet-4-6",
     "claude-haiku-4-5-20251001",
     # Google
     "gemini-2.5-pro",
+    "gemini-3-flash-preview",
     # xAI
     "grok-3",
+    "grok-4.20-0309-non-reasoning",
     # Mistral
     "mistral-large-latest",
     # Meta / Together
     "meta-llama/Llama-3.3-70B-Instruct-Turbo",
     # DeepSeek
-    "deepseek-chat",         # DeepSeek V4
-    "deepseek-reasoner",     # DeepSeek R1
+    "deepseek-chat",                # DeepSeek V4
+    "deepseek-reasoner",            # DeepSeek R1
     # Cohere
     "command-a-reasoning-08-2025",  # Command A Reasoning
     # Amazon Bedrock
-    "amazon.nova-pro-v1:0",      # Nova Pro
-    "amazon.nova-2-lite-v1:0",   # Nova 2 Lite
+    "amazon.nova-pro-v1:0",         # Nova Pro
+    "amazon.nova-2-lite-v1:0",      # Nova 2 Lite
 ]
 
 DATASET = PROJECT_ROOT / "dataset" / "public_tests.json"
