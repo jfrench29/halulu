@@ -16,6 +16,7 @@ import os
 import sys
 from pathlib import Path
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
@@ -24,8 +25,15 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from grading.metrics import compute_metrics
-from runner.model_adapters import get_cost_per_100
+from runner.model_adapters import get_cost_per_100, resolve_provider
 from storage.db import ResultsDB
+
+# Models added in the current refresh cycle — remove entries after ~2 weeks
+_NEW_MODELS = {
+    "deepseek-chat", "deepseek-reasoner", "command-a-reasoning-08-2025",
+    "amazon.nova-pro-v1:0", "amazon.nova-2-lite-v1:0",
+    "gpt-5.4-mini", "grok-4.20-0309-non-reasoning", "gemini-3-flash-preview",
+}
 
 # ── Config ────────────────────────────────────────────────────────────
 
@@ -190,6 +198,27 @@ st.markdown(f"""
         border-radius: 8px;
         overflow: hidden;
     }}
+    /* ── Dataframe dark-mode cell overrides ──────────────────── */
+    [data-testid="stDataFrame"] {{
+        background: transparent !important;
+    }}
+    .stDataFrame [data-testid="StyledDataFrameDataCell"],
+    .stDataFrame [data-testid="StyledDataFrameCornerCell"],
+    .stDataFrame [data-testid="StyledDataFrameRowHeaderCell"] {{
+        background-color: {_card_bg} !important;
+        color: {_text} !important;
+    }}
+    .stDataFrame [data-testid="StyledDataFrameHeaderCell"] {{
+        background-color: {_table_header_bg} !important;
+        color: {_text} !important;
+        font-weight: 600;
+    }}
+    .stDataFrame div[data-testid="glideDataEditor"] {{
+        background-color: {_card_bg} !important;
+    }}
+    .stDataFrame .dvn-scroller {{
+        background-color: {_card_bg} !important;
+    }}
 
     /* ── Heatmap ──────────────────────────────────────────────── */
     .heatmap-table {{
@@ -243,12 +272,12 @@ st.markdown(f"""
         text-transform: uppercase;
         letter-spacing: 0.03em;
     }}
-    .cat-false_premise {{ background: {_hallucinated}; color: white; }}
-    .cat-citation_trap {{ background: {_warning}; color: white; }}
-    .cat-numerical {{ background: {_info}; color: white; }}
-    .cat-closed_factual {{ background: {_correct}; color: white; }}
-    .cat-document_grounded {{ background: {_organic}; color: white; }}
-    .cat-summarization {{ background: {_teal}; color: white; }}
+    .cat-false_premise {{ background: {"#4A1919" if dark else _hallucinated}; color: {"#FCA5A5" if dark else "white"}; }}
+    .cat-citation_trap {{ background: {"#3D3319" if dark else _warning}; color: {"#FCD34D" if dark else "white"}; }}
+    .cat-numerical {{ background: {"#1E3A5F" if dark else _info}; color: {"#93C5FD" if dark else "white"}; }}
+    .cat-closed_factual {{ background: {"#1A4A42" if dark else _correct}; color: {"#2DD4BF" if dark else "white"}; }}
+    .cat-document_grounded {{ background: {"#1A3D2E" if dark else _organic}; color: {"#6EE7B7" if dark else "white"}; }}
+    .cat-summarization {{ background: {"#1A3D35" if dark else _teal}; color: {"#5EEAD4" if dark else "white"}; }}
 
     /* ── Methodology Table ─────────────────────────────────────── */
     .stMarkdown table {{
@@ -268,6 +297,7 @@ st.markdown(f"""
         padding: 0.4rem 0.75rem;
         border-bottom: 1px solid {_card_border};
         color: {_text_secondary};
+        background-color: {_bg};
     }}
 
     /* ── Footer ────────────────────────────────────────────────── */
@@ -409,21 +439,47 @@ if leaderboard:
 st.markdown('<div class="section-header">AI Reliability Leaderboard</div>', unsafe_allow_html=True)
 
 if leaderboard:
-    df = pd.DataFrame(leaderboard)
+    # Enrich with provider labels
+    _provider_labels = {
+        "openai": "OpenAI", "anthropic": "Anthropic", "google": "Google",
+        "xai": "xAI", "mistral": "Mistral", "together": "Meta/Together",
+        "deepseek": "DeepSeek", "cohere": "Cohere", "bedrock": "Amazon",
+    }
+    for row in leaderboard:
+        prov = resolve_provider(row["Model"])
+        row["_provider"] = _provider_labels.get(prov, prov or "Unknown")
 
-    display_df = pd.DataFrame({
-        "Rank": range(1, len(df) + 1),
-        "Model": df["Model"],
-        "WRS": df["WRS"].apply(lambda x: f"{x:.1f}"),
-        "Accuracy": df["Accuracy"].apply(lambda x: f"{x:.1%}"),
-        "Halulu Rate 😵‍💫": df["Halulu Rate"].apply(lambda x: f"{x:.1%}"),
-        "Trap Detection": df["TDR"].apply(lambda x: f"{x:.0%}"),
-        "Avg Severity": df["Avg Severity"].apply(lambda x: f"{x:.1f}" if x > 0 else "—"),
-        "Latency": df["Avg Latency"],
-        "Cost/100q": df["Cost/100q"],
-    })
+    available_providers = sorted(set(r["_provider"] for r in leaderboard))
+    selected_providers = st.multiselect(
+        "Filter by provider",
+        available_providers,
+        default=available_providers,
+        key="provider_filter",
+    )
 
-    st.dataframe(display_df, use_container_width=True, hide_index=True)
+    filtered_board = [r for r in leaderboard if r["_provider"] in selected_providers]
+    df = pd.DataFrame(filtered_board)
+
+    if not df.empty:
+        display_df = pd.DataFrame({
+            "Rank": range(1, len(df) + 1),
+            "Model": df["Model"].apply(lambda m: f"{m} ✦" if m in _NEW_MODELS else m),
+            "Provider": df["_provider"] if len(available_providers) > 1 else None,
+            "WRS": df["WRS"].apply(lambda x: f"{x:.1f}"),
+            "Accuracy": df["Accuracy"].apply(lambda x: f"{x:.1%}"),
+            "Halulu Rate 😵‍💫": df["Halulu Rate"].apply(lambda x: f"{x:.1%}"),
+            "Trap Detection": df["TDR"].apply(lambda x: f"{x:.0%}"),
+            "Avg Severity": df["Avg Severity"].apply(lambda x: f"{x:.1f}" if x > 0 else "—"),
+            "Latency": df["Avg Latency"],
+            "Cost/100q": df["Cost/100q"],
+        })
+        # Drop Provider column if only one provider selected
+        if len(selected_providers) <= 1 and "Provider" in display_df.columns:
+            display_df = display_df.drop(columns=["Provider"])
+
+        st.dataframe(display_df, use_container_width=True, hide_index=True)
+    else:
+        st.info("No models match the selected providers.")
 else:
     st.info("No evaluation data yet. Run the benchmark to populate the leaderboard.")
 
@@ -443,24 +499,30 @@ if leaderboard:
         "numerical": "Numerical",
     }
 
-    def _heatmap_color(rate: float) -> str:
-        """Green for high accuracy, red for low."""
-        if rate >= 0.9:
-            return "#2DD4BF"  # teal-green
-        elif rate >= 0.7:
-            return "#A7F3D0"  # light green
-        elif rate >= 0.5:
-            return "#FDE68A"  # yellow
-        elif rate >= 0.3:
-            return "#FCA5A5"  # light red
+    def _heatmap_color(rate: float) -> tuple[str, str]:
+        """Return (bg_color, text_color) for heatmap cell, theme-aware."""
+        if dark:
+            if rate >= 0.9:
+                return ("#1A4A42", "#2DD4BF")
+            elif rate >= 0.7:
+                return ("#1A3D2E", "#6EE7B7")
+            elif rate >= 0.5:
+                return ("#3D3319", "#FCD34D")
+            elif rate >= 0.3:
+                return ("#3D1F1F", "#FCA5A5")
+            else:
+                return ("#4A1919", "#EF4444")
         else:
-            return "#EF4444"  # red
-
-    def _text_color_for_bg(bg: str) -> str:
-        """Dark text for light backgrounds, light for dark."""
-        if bg in ("#2DD4BF", "#A7F3D0", "#FDE68A", "#FCA5A5"):
-            return "#1F2328"
-        return "#FFFFFF"
+            if rate >= 0.9:
+                return ("#2DD4BF", "#1F2328")
+            elif rate >= 0.7:
+                return ("#A7F3D0", "#1F2328")
+            elif rate >= 0.5:
+                return ("#FDE68A", "#1F2328")
+            elif rate >= 0.3:
+                return ("#FCA5A5", "#1F2328")
+            else:
+                return ("#EF4444", "#FFFFFF")
 
     header_row = "<tr><th style='text-align:left;'>Model</th>"
     for cat in categories:
@@ -475,8 +537,7 @@ if leaderboard:
         for cat in categories:
             cat_data = breakdown.get(cat, {})
             rate = cat_data.get("accuracy_rate", 0)
-            bg = _heatmap_color(rate)
-            tc = _text_color_for_bg(bg)
+            bg, tc = _heatmap_color(rate)
             body_rows += f"<td style='background:{bg}; color:{tc};'>{rate:.0%}</td>"
         body_rows += "</tr>"
 
@@ -511,24 +572,26 @@ if leaderboard:
         n = len(values)
         cx, cy, r = 160, 160, 120
         angles = [2 * math.pi * i / n - math.pi / 2 for i in range(n)]
+        _grid_stroke = "#484F58" if dark else _border
+        _grid_label_color = "#8B949E" if dark else _text_muted
 
         # Grid circles
         grid_svg = ""
         for level in [0.25, 0.5, 0.75, 1.0]:
             grid_r = r * level
-            grid_svg += f'<circle cx="{cx}" cy="{cy}" r="{grid_r}" fill="none" stroke="{_border}" stroke-width="0.5" stroke-dasharray="3,3"/>'
+            grid_svg += f'<circle cx="{cx}" cy="{cy}" r="{grid_r}" fill="none" stroke="{_grid_stroke}" stroke-width="0.5" stroke-dasharray="3,3"/>'
 
         # Grid labels (25%, 50%, etc.)
         for level in [0.5, 1.0]:
             label_y = cy - r * level - 4
-            grid_svg += f'<text x="{cx + 3}" y="{label_y}" font-size="9" fill="{_text_muted}" font-family="Inter, sans-serif">{int(level*100)}%</text>'
+            grid_svg += f'<text x="{cx + 3}" y="{label_y}" font-size="9" fill="{_grid_label_color}" font-family="Inter, sans-serif">{int(level*100)}%</text>'
 
         # Axis lines and labels
         axis_svg = ""
         for i, angle in enumerate(angles):
             x_end = cx + r * math.cos(angle)
             y_end = cy + r * math.sin(angle)
-            axis_svg += f'<line x1="{cx}" y1="{cy}" x2="{x_end}" y2="{y_end}" stroke="{_border}" stroke-width="0.5"/>'
+            axis_svg += f'<line x1="{cx}" y1="{cy}" x2="{x_end}" y2="{y_end}" stroke="{_grid_stroke}" stroke-width="0.5"/>'
             # Label
             lx = cx + (r + 24) * math.cos(angle)
             ly = cy + (r + 24) * math.sin(angle)
@@ -548,7 +611,7 @@ if leaderboard:
         for i, v in enumerate(values):
             px = cx + r * v * math.cos(angles[i])
             py = cy + r * v * math.sin(angles[i])
-            dots_svg += f'<circle cx="{px}" cy="{py}" r="4" fill="{_accent}" stroke="white" stroke-width="1.5"/>'
+            dots_svg += f'<circle cx="{px}" cy="{py}" r="4" fill="{_accent}" stroke="{_bg}" stroke-width="1.5"/>'
 
         radar_svg = f"""
         <svg class="radar-svg" width="320" height="320" viewBox="0 0 320 320">
@@ -606,6 +669,38 @@ if leaderboard:
         eff_df = pd.DataFrame(eff_rows)
         eff_df.insert(0, "Rank", range(1, len(eff_df) + 1))
         st.dataframe(eff_df, use_container_width=True, hide_index=True)
+
+        # Scatter plot: WRS vs Cost
+        scatter_data = pd.DataFrame([
+            {
+                "Model": r["Model"],
+                "WRS": r["_wrs"],
+                "Cost per 100q ($)": r["_cost"],
+                "Provider": r.get("_provider", "Unknown"),
+            }
+            for r in leaderboard if r.get("_cost") and r["_cost"] > 0
+        ])
+
+        if not scatter_data.empty:
+            chart = alt.Chart(scatter_data).mark_circle(size=80).encode(
+                x=alt.X("Cost per 100q ($):Q", scale=alt.Scale(type="log"), title="Cost per 100 Questions ($, log scale)"),
+                y=alt.Y("WRS:Q", scale=alt.Scale(domain=[0, 100]), title="Weighted Reliability Score"),
+                color=alt.Color("Provider:N"),
+                tooltip=["Model", "WRS", "Cost per 100q ($)", "Provider"],
+            ).properties(
+                height=350,
+            ).configure(
+                background=_card_bg,
+            ).configure_axis(
+                labelColor=_text_secondary,
+                titleColor=_text,
+                gridColor=_border,
+            ).configure_legend(
+                labelColor=_text_secondary,
+                titleColor=_text,
+            )
+
+            st.altair_chart(chart, use_container_width=True)
 
 # ── 5. Reality Stress Tests ───────────────────────────────────────────
 
