@@ -106,31 +106,8 @@ else:
 
 # ── Custom CSS ────────────────────────────────────────────────────────
 
-# Dataframe overrides only needed in dark mode (Glide Data Grid has white defaults)
+# Dark-mode dataframe CSS removed — using HTML tables for full theme control
 _df_dark_css = ""
-if dark:
-    _df_dark_css = f"""
-    [data-testid="stDataFrame"] {{
-        background: transparent !important;
-    }}
-    .stDataFrame [data-testid="StyledDataFrameDataCell"],
-    .stDataFrame [data-testid="StyledDataFrameCornerCell"],
-    .stDataFrame [data-testid="StyledDataFrameRowHeaderCell"] {{
-        background-color: {_card_bg} !important;
-        color: {_text} !important;
-    }}
-    .stDataFrame [data-testid="StyledDataFrameHeaderCell"] {{
-        background-color: {_table_header_bg} !important;
-        color: {_text} !important;
-        font-weight: 600;
-    }}
-    .stDataFrame div[data-testid="glideDataEditor"] {{
-        background-color: {_card_bg} !important;
-    }}
-    .stDataFrame .dvn-scroller {{
-        background-color: {_card_bg} !important;
-    }}
-    """
 
 st.markdown(f"""
 <style>
@@ -225,6 +202,50 @@ st.markdown(f"""
         overflow: hidden;
     }}
     {_df_dark_css}
+
+    /* ── Data Table (leaderboard, cost efficiency) ──────────── */
+    .data-table {{
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+        background: {_card_bg};
+        border: 1px solid {_card_border};
+        border-radius: 8px;
+        overflow: hidden;
+    }}
+    .data-table th {{
+        background: {_table_header_bg};
+        color: {_text};
+        font-weight: 600;
+        text-align: left;
+        padding: 0.5rem 0.6rem;
+        border-bottom: 1px solid {_border};
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }}
+    .data-table td {{
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid {_card_border};
+        color: {_text_secondary};
+        font-size: 0.8rem;
+        background: {_bg};
+    }}
+    .data-table tr:hover td {{
+        background: {_bg_secondary};
+    }}
+    .data-table td:first-child {{
+        color: {_text_muted};
+        text-align: center;
+        width: 2.5rem;
+    }}
+    .data-table td.model-col {{
+        color: {_text};
+        font-weight: 600;
+    }}
+    .data-table .new-badge {{
+        color: {_accent};
+        font-size: 0.7rem;
+    }}
 
     /* ── Heatmap ──────────────────────────────────────────────── */
     .heatmap-table {{
@@ -464,26 +485,27 @@ if leaderboard:
     )
 
     filtered_board = [r for r in leaderboard if r["_provider"] in selected_providers]
-    df = pd.DataFrame(filtered_board)
 
-    if not df.empty:
-        display_df = pd.DataFrame({
-            "Rank": range(1, len(df) + 1),
-            "Model": df["Model"].apply(lambda m: f"{m} ✦" if m in _NEW_MODELS else m),
-            "Provider": df["_provider"] if len(available_providers) > 1 else None,
-            "WRS": df["WRS"].apply(lambda x: f"{x:.1f}"),
-            "Accuracy": df["Accuracy"].apply(lambda x: f"{x:.1%}"),
-            "Halulu Rate 😵‍💫": df["Halulu Rate"].apply(lambda x: f"{x:.1%}"),
-            "Trap Detection": df["TDR"].apply(lambda x: f"{x:.0%}"),
-            "Avg Severity": df["Avg Severity"].apply(lambda x: f"{x:.1f}" if x > 0 else "—"),
-            "Latency": df["Avg Latency"],
-            "Cost/100q": df["Cost/100q"],
-        })
-        # Drop Provider column if only one provider selected
-        if len(selected_providers) <= 1 and "Provider" in display_df.columns:
-            display_df = display_df.drop(columns=["Provider"])
+    if filtered_board:
+        show_provider = len(selected_providers) > 1
+        header = "<tr><th>#</th><th>Model</th>"
+        if show_provider:
+            header += "<th>Provider</th>"
+        header += "<th>WRS</th><th>Accuracy</th><th>Hallu Rate</th><th>Trap Det.</th><th>Severity</th><th>Latency</th><th>Cost/100q</th></tr>"
 
-        st.dataframe(display_df, use_container_width=True, hide_index=True)
+        rows_html = ""
+        for rank, r in enumerate(filtered_board, 1):
+            model_name = r["Model"].replace("&", "&amp;").replace("<", "&lt;")
+            new_badge = ' <span class="new-badge">✦</span>' if r["Model"] in _NEW_MODELS else ""
+            sev = f"{r['Avg Severity']:.1f}" if r["Avg Severity"] > 0 else "—"
+            rows_html += f"<tr><td>{rank}</td><td class='model-col'>{model_name}{new_badge}</td>"
+            if show_provider:
+                rows_html += f"<td>{r['_provider']}</td>"
+            rows_html += f"<td><strong>{r['WRS']:.1f}</strong></td><td>{r['Accuracy']:.1%}</td>"
+            rows_html += f"<td>{r['Halulu Rate']:.1%}</td><td>{r['TDR']:.0%}</td>"
+            rows_html += f"<td>{sev}</td><td>{r['Avg Latency']}</td><td>{r['Cost/100q']}</td></tr>"
+
+        st.markdown(f'<table class="data-table">{header}{rows_html}</table>', unsafe_allow_html=True)
     else:
         st.info("No models match the selected providers.")
 else:
@@ -672,9 +694,13 @@ if leaderboard:
             })
     if eff_rows:
         eff_rows.sort(key=lambda x: float(x["WRS per $1"]), reverse=True)
-        eff_df = pd.DataFrame(eff_rows)
-        eff_df.insert(0, "Rank", range(1, len(eff_df) + 1))
-        st.dataframe(eff_df, use_container_width=True, hide_index=True)
+        eff_header = "<tr><th>#</th><th>Model</th><th>WRS</th><th>Cost/100q</th><th>WRS per $1</th></tr>"
+        eff_html = ""
+        for rank, er in enumerate(eff_rows, 1):
+            model_name = er["Model"].replace("&", "&amp;").replace("<", "&lt;")
+            eff_html += f"<tr><td>{rank}</td><td class='model-col'>{model_name}</td>"
+            eff_html += f"<td>{er['WRS']}</td><td>{er['Cost/100q']}</td><td><strong>{er['WRS per $1']}</strong></td></tr>"
+        st.markdown(f'<table class="data-table">{eff_header}{eff_html}</table>', unsafe_allow_html=True)
 
         # Scatter plot: WRS vs Cost
         scatter_data = pd.DataFrame([
