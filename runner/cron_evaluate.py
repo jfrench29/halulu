@@ -44,7 +44,15 @@ MODELS = [
     # Mistral
     "mistral-large-latest",
     # Meta / Together
-    "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+    # DeepSeek
+    "deepseek-chat",         # DeepSeek V4
+    "deepseek-reasoner",     # DeepSeek R1
+    # Cohere
+    "command-a-reasoning-08-2025",  # Command A Reasoning
+    # Amazon Bedrock
+    "amazon.nova-pro-v1:0",      # Nova Pro
+    "amazon.nova-2-lite-v1:0",   # Nova 2 Lite
 ]
 
 DATASET = PROJECT_ROOT / "dataset" / "public_tests.json"
