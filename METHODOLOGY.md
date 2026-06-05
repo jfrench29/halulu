@@ -32,29 +32,29 @@ When a response is graded `hallucinated`, it is further classified:
 
 ## Benchmark Categories
 
-### Closed Factual (15 questions)
+### Closed Factual (16 questions)
 
 Tests factual accuracy on verifiable claims. The grader normalizes both the expected answer and the model response, then checks whether the expected fact appears in the response. Short facts (under 5 characters) use word-boundary matching to avoid substring false positives.
 
-### False Premise (12 questions)
+### False Premise (20 questions)
 
 Questions built on false assumptions (e.g., "What year did [fictional event] happen?"). A **correct** response refuses to answer or corrects the premise. A **hallucinated** response accepts the false premise and fabricates details. The grader checks for refusal patterns, correction language, and hallucination trigger patterns defined per question.
 
-### Citation Trap (9 questions)
+### Citation Trap (16 questions)
 
 References non-existent sources and asks the model to discuss them. A **correct** response identifies that the source doesn't exist. A **hallucinated** response fabricates details about the non-existent source. This is the highest-severity category — fabricating citations that look real erodes trust in verifiable claims.
 
-### Document Grounded (9 questions)
+### Document Grounded (11 questions)
 
 Provides source text and asks questions about it. The grader checks whether the model's response is faithful to the provided document. Claims not supported by the source text are graded as hallucinated with subtype `unsupported_claim`.
 
-### Numerical (9 questions)
+### Numerical (10 questions)
 
 Tests numerical reasoning with defined tolerance ranges. Responses are parsed for numeric values and compared against expected answers within a configurable tolerance (default: 1% relative or exact match). Values outside tolerance are graded as hallucinated with subtype `numerical_error`.
 
-### Summarization (7 questions)
+### Summarization (6 questions)
 
-Provides text and asks for a summary. The grader uses keyword overlap to measure whether the summary captures key content from the source. Summaries that fall below a 40% keyword overlap threshold are flagged. This is the category most likely to benefit from future LLM-judge grading.
+Provides text and asks for a summary. An LLM judge assesses whether the summary is faithful to the source (no fabricated or contradicting claims), with a keyword-overlap heuristic as deterministic fallback when no judge is available.
 
 ## Severity Scale (0-5)
 
@@ -115,22 +115,24 @@ The dashboard displays cost per 100 questions based on estimated token usage (~2
 
 ## Grading Approach
 
-All grading is **deterministic and rule-based**. No LLM is used in the grading pipeline. This ensures reproducibility — the same response always gets the same grade.
+Grading is **primarily deterministic and rule-based**. Most categories (closed factual, false premise, citation trap, numerical) use only deterministic logic, so the same response always gets the same grade.
+
+Two faithfulness categories — **summarization** and **document grounded** — additionally use an **LLM judge** to decide whether an answer is faithful to its source, a judgment that keyword overlap makes poorly. The judge model is fixed and disclosed: `claude-haiku-4-5-20251001` by default (configurable via `HALULU_JUDGE_MODEL`). Faithfulness judging is far less vendor-sensitive than ranking. If the judge is unavailable, the pipeline falls back to the deterministic heuristic, so runs never break.
 
 The grading pipeline uses:
 - **Text normalization** (lowercasing, whitespace normalization, article removal)
 - **Pattern matching** for refusal detection, correction detection, and hallucination triggers
-- **Keyword overlap** for summarization fidelity
+- **LLM judge** (with deterministic fallback) for summarization and document-grounded faithfulness
 - **Numeric parsing** with configurable tolerance for numerical questions
 - **Behavioral patterns** defined per question in the dataset JSON
 
 ### Known Limitations
 
-- **Summarization grading** uses keyword overlap (40% threshold) rather than semantic similarity. Edge cases exist where a semantically accurate summary uses different vocabulary.
+- **LLM-judge dependence** — summarization and document-grounded faithfulness rely on a judge model. The judge is fixed and disclosed, and falls back to a keyword heuristic when unavailable, but judge grading is not perfectly reproducible across model versions.
 - **False premise detection** relies on pattern matching for refusal/correction language. A model that corrects a premise using unexpected phrasing may be misclassified.
 - **No partial credit** — a response is either correct, incorrect, hallucinated, refused, or uncertain. There is no scoring gradient within a grade.
 
-These limitations are documented because transparency about methodology constraints is part of the benchmark's credibility. LLM-judge grading for subjective categories is on the roadmap.
+These limitations are documented because transparency about methodology constraints is part of the benchmark's credibility.
 
 ## Reproducibility
 

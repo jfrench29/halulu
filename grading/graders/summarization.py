@@ -1,11 +1,13 @@
 """Grader for summarization questions.
 
-Grades whether the summary stays faithful to the source material.
-Uses keyword overlap heuristic (upgradeable to LLM judge).
+Grades whether the summary stays faithful to the source material. Prefers an
+LLM judge for faithfulness; falls back to a keyword-overlap heuristic when no
+judge is available (no API key, judge error).
 """
 
 from __future__ import annotations
 
+from grading.llm_judge import judge_faithfulness
 from grading.normalization import detect_refusal
 from grading.schemas import GradeResult
 
@@ -21,6 +23,15 @@ def grade_summarization(test_case: dict, response: str) -> GradeResult:
 
     reference = test_case.get("correct_answer", "")
     reference_facts = test_case.get("reference_facts", [])
+
+    # Prefer the LLM judge; fall back to the keyword heuristic if unavailable.
+    judged = judge_faithfulness(
+        reference=f"{test_case.get('prompt', '')}\n\nExpected faithful summary: {reference}",
+        response=response,
+    )
+    if judged is not None:
+        return judged
+
     ref_text = " ".join(reference_facts) if reference_facts else reference
 
     ref_words = set(ref_text.lower().split()) - _STOPWORDS

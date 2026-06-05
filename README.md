@@ -25,16 +25,16 @@ Standard benchmarks (MMLU, HumanEval) test knowledge recall. Halulu tests behavi
 
 ## Benchmark Categories
 
-61 adversarial questions across 6 categories:
+79 adversarial questions across 6 categories:
 
 | Category | Questions | What It Tests |
 |----------|-----------|---------------|
-| Closed Factual | 15 | Factual accuracy on verifiable claims |
-| False Premise | 12 | Ability to reject questions built on false assumptions |
-| Citation Trap | 9 | Resistance to fabricating details about non-existent sources |
-| Document Grounded | 9 | Faithfulness to provided source material |
-| Numerical | 9 | Numerical reasoning accuracy |
-| Summarization | 7 | Content fidelity in summaries |
+| Closed Factual | 16 | Factual accuracy on verifiable claims |
+| False Premise | 20 | Ability to reject questions built on false assumptions |
+| Citation Trap | 16 | Resistance to fabricating details about non-existent sources |
+| Document Grounded | 11 | Faithfulness to provided source material |
+| Numerical | 10 | Numerical reasoning accuracy |
+| Summarization | 6 | Content fidelity in summaries |
 
 ## Running the Benchmark
 

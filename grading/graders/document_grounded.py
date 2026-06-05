@@ -6,6 +6,7 @@ Uses word-boundary matching for short facts to prevent substring collisions.
 
 from __future__ import annotations
 
+from grading.llm_judge import judge_faithfulness
 from grading.normalization import normalize_text, detect_refusal, fact_in_response
 from grading.schemas import GradeResult
 
@@ -35,6 +36,16 @@ def grade_document_grounded(test_case: dict, response: str) -> GradeResult:
             reason=f"Response contains '{answer}'",
             details={"matched_behavior": "answer_from_document"},
         )
+
+    # Deterministic match failed. Before declaring incorrect, consult the judge —
+    # it catches paraphrases and "the source doesn't say" answers that exact
+    # fact-matching misses.
+    judged = judge_faithfulness(
+        reference=f"{test_case.get('prompt', '')}\n\nExpected grounded answer: {answer}",
+        response=response,
+    )
+    if judged is not None:
+        return judged
 
     return GradeResult(
         result="incorrect",
