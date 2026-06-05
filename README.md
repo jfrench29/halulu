@@ -89,12 +89,12 @@ Halulu supports any model accessible through these providers:
 
 | Provider | Example Models | Adapter |
 |----------|---------------|---------|
-| OpenAI | gpt-4o, gpt-4.1, o3, o4-mini, gpt-5.4 | `openai` |
-| Anthropic | claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5 | `anthropic` |
+| OpenAI | gpt-5.1, gpt-4.1-mini | `openai` |
+| Anthropic | claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5 | `anthropic` |
 | Google | gemini-2.5-pro, gemini-2.5-flash | `google` |
-| xAI | grok-3, grok-3-mini, grok-4 | `xai` |
+| xAI | grok-4.3 | `xai` |
 | Mistral | mistral-large-latest | `mistral` |
-| Together | Llama 3.3 70B, Llama 4 Maverick | `together` |
+| DeepSeek | deepseek-chat (V4) | `deepseek` |
 
 To request a new model, [open an issue](https://github.com/jfrench29/halulu/issues).
 

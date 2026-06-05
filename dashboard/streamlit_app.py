@@ -14,6 +14,7 @@ import json
 import math
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import altair as alt
@@ -28,11 +29,12 @@ from grading.metrics import compute_metrics
 from runner.model_adapters import get_cost_per_100, resolve_provider
 from storage.db import ResultsDB
 
-# Models added in the current refresh cycle — remove entries after ~2 weeks
+# Models added or upgraded in the current refresh cycle — remove after ~2 weeks
 _NEW_MODELS = {
-    "deepseek-chat", "deepseek-reasoner", "command-a-reasoning-08-2025",
-    "amazon.nova-pro-v1:0", "amazon.nova-2-lite-v1:0",
-    "gpt-5.4-mini", "grok-4.20-0309-non-reasoning", "gemini-3-flash-preview",
+    "gpt-5.1", "gpt-4.1-mini",
+    "claude-opus-4-8",
+    "gemini-2.5-flash",
+    "grok-4.3",
 }
 
 # ── Config ────────────────────────────────────────────────────────────
@@ -410,6 +412,19 @@ def load_leaderboard():
     return sorted(rows, key=lambda r: r["WRS"], reverse=True)
 
 
+@st.cache_data(ttl=120)
+def load_last_updated() -> str | None:
+    """Friendly date of the most recent evaluation run, for the freshness signal."""
+    db = get_db()
+    runs = db.get_all_runs(limit=1)
+    if runs and runs[0].get("timestamp"):
+        try:
+            return datetime.fromisoformat(runs[0]["timestamp"]).strftime("%b %-d, %Y")
+        except (ValueError, TypeError):
+            return runs[0]["timestamp"][:10]
+    return None
+
+
 @st.cache_data(ttl=3600)
 def load_sample_questions():
     path = PROJECT_ROOT / "dataset" / "public_tests.json"
@@ -430,10 +445,16 @@ with _toggle_col2:
 
 # ── Hero Section ──────────────────────────────────────────────────────
 
+_last_updated = load_last_updated()
+_freshness = (
+    f'<div class="tagline" style="font-size:0.8rem;opacity:0.7;">Last updated: {_last_updated}</div>'
+    if _last_updated else ""
+)
 st.markdown(f"""
 <div class="hero">
     <h1>😵‍💫 Halulu</h1>
     <div class="tagline">AI Reliability Index — A hallucination detection project</div>
+    {_freshness}
 </div>
 """, unsafe_allow_html=True)
 
@@ -470,7 +491,7 @@ if leaderboard:
     _provider_labels = {
         "openai": "OpenAI", "anthropic": "Anthropic", "google": "Google",
         "xai": "xAI", "mistral": "Mistral", "together": "Meta/Together",
-        "deepseek": "DeepSeek", "cohere": "Cohere", "bedrock": "Amazon",
+        "deepseek": "DeepSeek",
     }
     for row in leaderboard:
         prov = resolve_provider(row["Model"])

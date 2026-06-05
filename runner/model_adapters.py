@@ -1,16 +1,17 @@
 """Model adapter layer — unified interface for calling AI models.
 
 Supported providers:
-- OpenAI (GPT-4.1, GPT-4o, o3, o4-mini, GPT-5.4)
-- Anthropic (Claude 4.6, 4.5, Haiku 4.5)
-- Google (Gemini 2.5 Pro, 3.1 Pro, 3 Flash)
-- xAI (Grok 3, Grok 4, Grok 4.20)
-- Mistral (Mistral Large 3)
-- Together AI (Meta Llama 4, Llama 3.3)
+- OpenAI (GPT-5.1, GPT-4.1 family, o-series) — reasoning + standard
+- Anthropic (Claude Opus 4.8, Sonnet 4.6, Haiku 4.5)
+- Google (Gemini 2.5 Pro, 2.5 Flash)
+- xAI (Grok 4.3)
+- Mistral (Mistral Large)
+- Together AI (Meta Llama) — OpenAI-compatible API
 - DeepSeek (V4, R1) — OpenAI-compatible API
-- Cohere (Command A, Command A Reasoning)
-- Amazon Bedrock (Nova 2 Pro, Nova 2 Lite)
 - Local (Ollama)
+
+All model IDs are validated against the live provider APIs by
+`scripts/validate_models.py` before they enter the benchmark.
 """
 
 from __future__ import annotations
@@ -71,10 +72,12 @@ class OpenAIAdapter(ModelAdapter):
     def call(self, prompt: str) -> ModelResponse:
         start = time.perf_counter()
         if self._is_reasoning:
+            # Reasoning tokens count against this budget; keep headroom so the
+            # actual answer is not truncated to empty (which grades as a refusal).
             resp = self._client.chat.completions.create(
                 model=self._model,
                 messages=[{"role": "user", "content": prompt}],
-                max_completion_tokens=1024,
+                max_completion_tokens=4096,
             )
         else:
             resp = self._client.chat.completions.create(
@@ -254,7 +257,7 @@ class DeepSeekAdapter(ModelAdapter):
             resp = self._client.chat.completions.create(
                 model=self._model,
                 messages=[{"role": "user", "content": prompt}],
-                max_completion_tokens=1024,
+                max_completion_tokens=4096,
             )
         else:
             resp = self._client.chat.completions.create(
@@ -265,87 +268,6 @@ class DeepSeekAdapter(ModelAdapter):
             )
         latency = (time.perf_counter() - start) * 1000
         return ModelResponse(text=resp.choices[0].message.content or "", latency_ms=latency, model_name=self.name)
-
-
-class CohereAdapter(ModelAdapter):
-    """Cohere — uses the cohere Python SDK (v2 client).
-
-    Supports Command A Reasoning and Command R models.
-    Reasoning models return [thinking, text] content items — we extract only the text.
-    """
-
-    def __init__(self, model: str = "command-a-reasoning-08-2025", api_key: str | None = None):
-        import cohere
-
-        self._model = model
-        key = api_key or os.environ.get("COHERE_API_KEY")
-        if not key:
-            raise ValueError("COHERE_API_KEY not set")
-        self._client = cohere.ClientV2(api_key=key)
-
-    @property
-    def name(self) -> str:
-        return self._model
-
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=2, max=30), reraise=True)
-    def call(self, prompt: str) -> ModelResponse:
-        start = time.perf_counter()
-        resp = self._client.chat(
-            model=self._model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0,
-            max_tokens=1024,
-        )
-        latency = (time.perf_counter() - start) * 1000
-        # Reasoning models return [thinking, text] items; extract only text
-        text = ""
-        if resp.message and resp.message.content:
-            for item in resp.message.content:
-                if getattr(item, "type", None) == "text":
-                    text = item.text
-                    break
-            # Fallback for non-reasoning models that have .text directly
-            if not text and hasattr(resp.message.content[0], "text"):
-                text = resp.message.content[0].text
-        return ModelResponse(text=text or "", latency_ms=latency, model_name=self.name)
-
-
-class BedrockAdapter(ModelAdapter):
-    """Amazon Bedrock — uses boto3 bedrock-runtime (Converse API).
-
-    Supports Nova Premier, Nova 2 Lite, and other Bedrock-hosted models.
-    Requires AWS credentials configured via environment or IAM role.
-
-    Bedrock requires cross-region inference profile IDs (us.<model-id>)
-    for on-demand invocation of newer models.
-    """
-
-    def __init__(self, model: str = "amazon.nova-premier-v1:0", api_key: str | None = None):
-        import boto3
-
-        self._model = model
-        # Inference profile ID: prepend "us." for cross-region on-demand access
-        self._inference_id = f"us.{model}" if not model.startswith("us.") else model
-        region = os.environ.get("AWS_REGION", "us-east-1")
-        self._client = boto3.client("bedrock-runtime", region_name=region)
-
-    @property
-    def name(self) -> str:
-        return self._model
-
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=2, max=30), reraise=True)
-    def call(self, prompt: str) -> ModelResponse:
-        start = time.perf_counter()
-        resp = self._client.converse(
-            modelId=self._inference_id,
-            messages=[{"role": "user", "content": [{"text": prompt}]}],
-            inferenceConfig={"maxTokens": 1024, "temperature": 0},
-        )
-        latency = (time.perf_counter() - start) * 1000
-        text = ""
-        if resp.get("output", {}).get("message", {}).get("content"):
-            text = resp["output"]["message"]["content"][0].get("text", "")
-        return ModelResponse(text=text or "", latency_ms=latency, model_name=self.name)
 
 
 class LocalModelAdapter(ModelAdapter):
@@ -381,8 +303,6 @@ ADAPTER_REGISTRY: dict[str, type[ModelAdapter]] = {
     "mistral": MistralAdapter,
     "together": TogetherAdapter,
     "deepseek": DeepSeekAdapter,
-    "cohere": CohereAdapter,
-    "bedrock": BedrockAdapter,
     "local": LocalModelAdapter,
 }
 
@@ -398,56 +318,30 @@ _PROVIDER_MAP = {
     "meta-llama/": "together",
     "llama-": "together",
     "deepseek-": "deepseek",
-    "command-": "cohere",
-    "amazon.nova-": "bedrock",
     "local/": "local",
 }
 
-# Estimated cost per 100 questions (USD) — ~200 input + ~200 output tokens each
+# Estimated cost per 100 questions (USD) — ~200 input + ~200 output tokens each.
+# Only models in the active benchmark lineup are listed; all IDs are
+# live-validated by scripts/validate_models.py. Costs marked "est." are
+# estimates pending confirmed public pricing.
 MODEL_COST_PER_100: dict[str, float] = {
     # OpenAI
-    "gpt-4.1": 0.16,           # $2/$8 per 1M tokens
+    "gpt-5.1": 1.50,           # flagship reasoning (est.)
     "gpt-4.1-mini": 0.03,      # $0.40/$1.60 per 1M tokens
-    "gpt-4.1-nano": 0.01,      # $0.10/$0.40 per 1M tokens
-    "gpt-4o": 0.25,            # $2.50/$10 per 1M tokens
-    "gpt-4o-mini": 0.01,
-    "o1": 3.00,
-    "o3": 2.00,                # $2/$8 per 1M tokens (reasoning)
-    "o4-mini": 0.22,           # $1.10/$4.40 per 1M tokens (reasoning)
-    "gpt-5.4": 2.00,           # reasoning model
-    "gpt-5.4-mini": 0.10,     # $0.75/$4.50 per 1M tokens
-    "gpt-5": 1.50,             # reasoning model
-    "gpt-5-mini": 0.15,        # reasoning model
     # Anthropic
-    "claude-opus-4-6": 1.80,   # $15/$75 per 1M tokens
+    "claude-opus-4-8": 1.80,   # $15/$75 per 1M tokens
     "claude-sonnet-4-6": 0.36, # $3/$15 per 1M tokens
-    "claude-opus-4-20250514": 1.80,
-    "claude-sonnet-4-20250514": 0.36,
     "claude-haiku-4-5-20251001": 0.05,
     # Google
     "gemini-2.5-pro": 0.25,
     "gemini-2.5-flash": 0.02,
-    "gemini-2.0-flash": 0.01,
-    "gemini-3-flash-preview": 0.07,  # $0.50/$3.00 per 1M tokens
     # xAI
-    "grok-3": 0.36,            # $3/$15 per 1M tokens
-    "grok-3-mini": 0.02,       # $0.30/$0.50 per 1M tokens
-    "grok-4": 0.36,            # $3/$15 per 1M tokens
-    "grok-4.20-0309-non-reasoning": 0.16, # $2/$6 per 1M tokens
-    "grok-4.20-0309-reasoning": 0.16,     # $2/$6 per 1M tokens
+    "grok-4.3": 0.36,          # ~$3/$15 per 1M tokens (est.)
     # Mistral
     "mistral-large-latest": 0.16,
-    # Meta / Together
-    "meta-llama/Llama-3.3-70B-Instruct-Turbo": 0.04,
     # DeepSeek
-    "deepseek-chat": 0.01,             # V4: $0.30/$0.50 per 1M tokens
-    "deepseek-reasoner": 0.05,         # R1: $0.55/$2.00 per 1M tokens
-    # Cohere
-    "command-a-reasoning-08-2025": 0.25, # Command A Reasoning: $2.50/$10 per 1M tokens
-    "command-r-08-2024": 0.02,          # Command R: $0.15/$0.60 per 1M tokens
-    # Amazon Bedrock (Nova 2)
-    "amazon.nova-pro-v1:0": 0.16,      # Nova Pro: $0.80/$3.20 per 1M tokens
-    "amazon.nova-2-lite-v1:0": 0.06,  # Nova 2 Lite: $0.30/$2.50 per 1M tokens
+    "deepseek-chat": 0.01,     # V4: $0.30/$0.50 per 1M tokens
 }
 
 

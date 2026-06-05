@@ -29,33 +29,21 @@ logger = logging.getLogger(__name__)
 
 MODELS = [
     # OpenAI
-    "gpt-4.1",
-    "gpt-4o-mini",
-    "o3",
-    "gpt-5.4",
-    "gpt-5.4-mini",
+    "gpt-5.1",                       # flagship reasoning
+    "gpt-4.1-mini",                  # best-value standard
     # Anthropic
-    "claude-opus-4-6",
-    "claude-sonnet-4-6",
-    "claude-haiku-4-5-20251001",
+    "claude-opus-4-8",              # flagship
+    "claude-sonnet-4-6",            # mid-tier
+    "claude-haiku-4-5-20251001",    # best-value
     # Google
-    "gemini-2.5-pro",
-    "gemini-3-flash-preview",
+    "gemini-2.5-pro",               # flagship
+    "gemini-2.5-flash",             # best-value
     # xAI
-    "grok-3",
-    "grok-4.20-0309-non-reasoning",
+    "grok-4.3",                     # flagship
     # Mistral
     "mistral-large-latest",
-    # Meta / Together
-    "meta-llama/Llama-3.3-70B-Instruct-Turbo",
-    # DeepSeek
+    # DeepSeek (open-weight value)
     "deepseek-chat",                # DeepSeek V4
-    "deepseek-reasoner",            # DeepSeek R1
-    # Cohere
-    "command-a-reasoning-08-2025",  # Command A Reasoning
-    # Amazon Bedrock
-    "amazon.nova-pro-v1:0",         # Nova Pro
-    "amazon.nova-2-lite-v1:0",      # Nova 2 Lite
 ]
 
 DATASET = PROJECT_ROOT / "dataset" / "public_tests.json"

@@ -208,10 +208,11 @@ hardcoded. Update the `MODELS` list there when adding/removing models.
 5. Environment variables (DATABASE_URL + API keys) are shared within the
    Railway project — verify they're visible to the new service
 
-**Current models (11):** gpt-4.1, gpt-4o-mini, o3, gpt-5.4,
-claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001,
-gemini-2.5-pro, grok-3, mistral-large-latest,
-meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
+**Current models (10):** gpt-5.1, gpt-4.1-mini,
+claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5-20251001,
+gemini-2.5-pro, gemini-2.5-flash, grok-4.3, mistral-large-latest,
+deepseek-chat
+(canonical list lives in `runner/cron_evaluate.py`; validate with `scripts/validate_models.py`)
 
 **Test locally:**
 ```bash
