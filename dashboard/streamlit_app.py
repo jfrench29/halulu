@@ -388,6 +388,12 @@ def get_db():
 def load_leaderboard():
     db = get_db()
     results_by_model = db.get_latest_results_per_model()
+    # Scope to the active lineup so retired models lingering in the DB from
+    # earlier runs never reappear on the live leaderboard.
+    from runner.cron_evaluate import MODELS as _ACTIVE
+
+    active = set(_ACTIVE)
+    results_by_model = {m: r for m, r in results_by_model.items() if m in active}
     rows = []
     for model, results in results_by_model.items():
         metrics = compute_metrics(model, results)
