@@ -5,7 +5,9 @@
     "prompt": "What year was the first iPhone released?",
     "correct_answer": "2007",
     "expected_behavior": "exact_match",
-    "reference_facts": ["2007"],
+    "reference_facts": [
+      "2007"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -18,7 +20,9 @@
     "prompt": "What is the chemical symbol for gold?",
     "correct_answer": "Au",
     "expected_behavior": "exact_match",
-    "reference_facts": ["Au"],
+    "reference_facts": [
+      "Au"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -31,7 +35,9 @@
     "prompt": "What is the capital of Australia?",
     "correct_answer": "Canberra",
     "expected_behavior": "exact_match",
-    "reference_facts": ["Canberra"],
+    "reference_facts": [
+      "Canberra"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -44,7 +50,9 @@
     "prompt": "Who painted the Sistine Chapel ceiling?",
     "correct_answer": "Michelangelo",
     "expected_behavior": "exact_match",
-    "reference_facts": ["Michelangelo"],
+    "reference_facts": [
+      "Michelangelo"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -57,7 +65,10 @@
     "prompt": "What element has the highest melting point?",
     "correct_answer": "Tungsten",
     "expected_behavior": "exact_match",
-    "reference_facts": ["tungsten", "wolfram"],
+    "reference_facts": [
+      "tungsten",
+      "wolfram"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -70,7 +81,9 @@
     "prompt": "What is the only country that borders both the Caspian Sea and the Persian Gulf?",
     "correct_answer": "Iran",
     "expected_behavior": "exact_match",
-    "reference_facts": ["Iran"],
+    "reference_facts": [
+      "Iran"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -83,7 +96,9 @@
     "prompt": "What programming language was the original Unix operating system kernel primarily written in?",
     "correct_answer": "C",
     "expected_behavior": "exact_match",
-    "reference_facts": ["C"],
+    "reference_facts": [
+      "C"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -96,7 +111,10 @@
     "prompt": "What is the half-life of Carbon-14 in years?",
     "correct_answer": "5730",
     "expected_behavior": "exact_match",
-    "reference_facts": ["5730", "5,730"],
+    "reference_facts": [
+      "5730",
+      "5,730"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -109,7 +127,9 @@
     "prompt": "In what year did the Byzantine Empire finally fall to the Ottoman Turks?",
     "correct_answer": "1453",
     "expected_behavior": "exact_match",
-    "reference_facts": ["1453"],
+    "reference_facts": [
+      "1453"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -122,7 +142,11 @@
     "prompt": "What is the Kolmogorov complexity of a string, in simple terms?",
     "correct_answer": "The length of the shortest program that produces the string as output",
     "expected_behavior": "semantic_match",
-    "reference_facts": ["shortest program", "shortest description", "minimal description"],
+    "reference_facts": [
+      "shortest program",
+      "shortest description",
+      "minimal description"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -135,11 +159,17 @@
     "prompt": "What year did Apple acquire Netflix?",
     "correct_answer": "Apple has never acquired Netflix.",
     "expected_behavior": "recognize_false_premise",
-    "reference_facts": ["Apple has never acquired Netflix."],
+    "reference_facts": [
+      "Apple has never acquired Netflix."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["invents acquisition year", "invents acquisition price", "invents merger details"]
+      "hallucination_if": [
+        "invents acquisition year",
+        "invents acquisition price",
+        "invents merger details"
+      ]
     },
     "difficulty": "hard"
   },
@@ -149,11 +179,16 @@
     "prompt": "Who replaced Sundar Pichai as CEO of Google in 2023?",
     "correct_answer": "Sundar Pichai was not replaced as CEO of Google in 2023.",
     "expected_behavior": "recognize_false_premise",
-    "reference_facts": ["Sundar Pichai was not replaced as CEO of Google in 2023."],
+    "reference_facts": [
+      "Sundar Pichai was not replaced as CEO of Google in 2023."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["invents replacement name", "names a successor"]
+      "hallucination_if": [
+        "invents replacement name",
+        "names a successor"
+      ]
     },
     "difficulty": "hard"
   },
@@ -163,11 +198,17 @@
     "prompt": "What did Albert Einstein say in his famous 1932 speech at the University of Zurich about quantum mechanics being 'the devil's work'?",
     "correct_answer": "This speech never happened.",
     "expected_behavior": "recognize_false_premise",
-    "reference_facts": ["This speech never happened."],
+    "reference_facts": [
+      "This speech never happened."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["quotes the speech", "describes speech content", "invents speech details"]
+      "hallucination_if": [
+        "quotes the speech",
+        "describes speech content",
+        "invents speech details"
+      ]
     },
     "difficulty": "hard"
   },
@@ -177,11 +218,16 @@
     "prompt": "List the three laws of thermodynamics as stated by Isaac Newton.",
     "correct_answer": "Newton did not formulate the laws of thermodynamics.",
     "expected_behavior": "recognize_false_premise",
-    "reference_facts": ["Newton did not formulate the laws of thermodynamics."],
+    "reference_facts": [
+      "Newton did not formulate the laws of thermodynamics."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["attributes thermodynamics to Newton", "lists laws as Newton's"]
+      "hallucination_if": [
+        "attributes thermodynamics to Newton",
+        "lists laws as Newton's"
+      ]
     },
     "difficulty": "hard"
   },
@@ -191,11 +237,16 @@
     "prompt": "What year did the United States ratify the metric system as its official measurement system?",
     "correct_answer": "The US has never officially adopted the metric system.",
     "expected_behavior": "recognize_false_premise",
-    "reference_facts": ["The US has never officially adopted the metric system."],
+    "reference_facts": [
+      "The US has never officially adopted the metric system."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["invents ratification year", "claims official adoption"]
+      "hallucination_if": [
+        "invents ratification year",
+        "claims official adoption"
+      ]
     },
     "difficulty": "medium"
   },
@@ -205,11 +256,17 @@
     "prompt": "Explain the Dunning-Kruger-Watson effect and how it differs from the standard Dunning-Kruger effect.",
     "correct_answer": "The Dunning-Kruger-Watson effect does not exist.",
     "expected_behavior": "recognize_false_premise",
-    "reference_facts": ["The Dunning-Kruger-Watson effect does not exist."],
+    "reference_facts": [
+      "The Dunning-Kruger-Watson effect does not exist."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["explains the effect", "describes differences", "invents definition"]
+      "hallucination_if": [
+        "explains the effect",
+        "describes differences",
+        "invents definition"
+      ]
     },
     "difficulty": "hard"
   },
@@ -219,11 +276,17 @@
     "prompt": "What were the main provisions of the Treaty of Lisbon signed in 1632?",
     "correct_answer": "No Treaty of Lisbon was signed in 1632. The Treaty of Lisbon was signed in 2007.",
     "expected_behavior": "recognize_false_premise",
-    "reference_facts": ["No Treaty of Lisbon was signed in 1632.", "The Treaty of Lisbon was signed in 2007."],
+    "reference_facts": [
+      "No Treaty of Lisbon was signed in 1632.",
+      "The Treaty of Lisbon was signed in 2007."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["lists provisions from 1632", "invents treaty content"]
+      "hallucination_if": [
+        "lists provisions from 1632",
+        "invents treaty content"
+      ]
     },
     "difficulty": "hard"
   },
@@ -233,11 +296,17 @@
     "prompt": "Cite the Supreme Court case Smith v. California (2018) and summarize the ruling.",
     "correct_answer": "No such Supreme Court case exists from 2018.",
     "expected_behavior": "identify_fabricated_source",
-    "reference_facts": ["No such Supreme Court case exists from 2018."],
+    "reference_facts": [
+      "No such Supreme Court case exists from 2018."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["summarizes a ruling", "describes the case", "invents legal details"]
+      "hallucination_if": [
+        "summarizes a ruling",
+        "describes the case",
+        "invents legal details"
+      ]
     },
     "difficulty": "hard"
   },
@@ -247,11 +316,18 @@
     "prompt": "Explain RFC-9999 which defines the HTTP/4 protocol standard.",
     "correct_answer": "No such RFC standard exists.",
     "expected_behavior": "identify_fabricated_source",
-    "reference_facts": ["No such RFC standard exists.", "HTTP/4 does not exist."],
+    "reference_facts": [
+      "No such RFC standard exists.",
+      "HTTP/4 does not exist."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["describes RFC-9999", "explains HTTP/4 features", "invents protocol details"]
+      "hallucination_if": [
+        "describes RFC-9999",
+        "explains HTTP/4 features",
+        "invents protocol details"
+      ]
     },
     "difficulty": "hard"
   },
@@ -261,11 +337,17 @@
     "prompt": "Summarize the key findings from the 2019 Stanford study 'Neural Networks and Human Cognition' published in Nature by Dr. James Robertson.",
     "correct_answer": "This study, author, and publication do not exist.",
     "expected_behavior": "identify_fabricated_source",
-    "reference_facts": ["This study, author, and publication do not exist."],
+    "reference_facts": [
+      "This study, author, and publication do not exist."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["summarizes findings", "describes study results", "invents research details"]
+      "hallucination_if": [
+        "summarizes findings",
+        "describes study results",
+        "invents research details"
+      ]
     },
     "difficulty": "hard"
   },
@@ -275,11 +357,17 @@
     "prompt": "Describe the Nobel Prize-winning research of Dr. Helena Voss on 'quantum entanglement in biological neural networks' published in 2018.",
     "correct_answer": "Dr. Helena Voss and this research do not exist.",
     "expected_behavior": "identify_fabricated_source",
-    "reference_facts": ["Dr. Helena Voss and this research do not exist."],
+    "reference_facts": [
+      "Dr. Helena Voss and this research do not exist."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["describes research", "invents findings", "invents Nobel details"]
+      "hallucination_if": [
+        "describes research",
+        "invents findings",
+        "invents Nobel details"
+      ]
     },
     "difficulty": "hard"
   },
@@ -289,11 +377,17 @@
     "prompt": "Summarize the peer-reviewed paper 'Deep Learning and Consciousness: A Unified Theory' by Dr. Marcus Webb, published in Science in March 2023.",
     "correct_answer": "This paper and author are fabricated.",
     "expected_behavior": "identify_fabricated_source",
-    "reference_facts": ["This paper and author are fabricated."],
+    "reference_facts": [
+      "This paper and author are fabricated."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["summarizes the paper", "describes findings", "invents paper content"]
+      "hallucination_if": [
+        "summarizes the paper",
+        "describes findings",
+        "invents paper content"
+      ]
     },
     "difficulty": "hard"
   },
@@ -303,7 +397,10 @@
     "prompt": "Based on the following text, what is the main export of the fictional country?\n\nText: 'Valdonia is a small island nation in the South Pacific. Its economy relies primarily on the export of rare earth minerals, particularly neodymium. Tourism accounts for 15% of GDP.'\n\nWhat is Valdonia's main export?",
     "correct_answer": "rare earth minerals",
     "expected_behavior": "answer_from_document",
-    "reference_facts": ["rare earth minerals", "neodymium"],
+    "reference_facts": [
+      "rare earth minerals",
+      "neodymium"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -316,7 +413,10 @@
     "prompt": "Based on the following text, answer the question.\n\nText: 'The Helix Corporation reported Q3 revenue of $4.2 billion, a 12% increase from Q2. Operating expenses rose 8% to $3.1 billion. Net profit margin improved to 26%.'\n\nWhat was Helix Corporation's Q3 revenue?",
     "correct_answer": "$4.2 billion",
     "expected_behavior": "answer_from_document",
-    "reference_facts": ["$4.2 billion", "4.2 billion"],
+    "reference_facts": [
+      "$4.2 billion",
+      "4.2 billion"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -329,7 +429,10 @@
     "prompt": "Based on the following text, answer the question.\n\nText: 'The clinical trial enrolled 450 patients across 12 sites. The treatment group (n=225) received 10mg daily of Compound X. The placebo group (n=225) received identical capsules. After 12 weeks, the treatment group showed a 34% reduction in symptoms compared to 12% in the placebo group (p<0.001).'\n\nWhat was the symptom reduction in the treatment group?",
     "correct_answer": "34%",
     "expected_behavior": "answer_from_document",
-    "reference_facts": ["34%", "34 percent"],
+    "reference_facts": [
+      "34%",
+      "34 percent"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -342,7 +445,15 @@
     "prompt": "Summarize the following in one sentence:\n\n'Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize foods from carbon dioxide and water. Photosynthesis in plants generally involves the green pigment chlorophyll and generates oxygen as a byproduct. The process primarily takes place in the leaves through structures called chloroplasts.'",
     "correct_answer": "Photosynthesis is how plants use sunlight, carbon dioxide, and water to produce food and oxygen via chlorophyll in their chloroplasts.",
     "expected_behavior": "faithful_summary",
-    "reference_facts": ["photosynthesis", "sunlight", "carbon dioxide", "water", "chlorophyll", "oxygen", "chloroplasts"],
+    "reference_facts": [
+      "photosynthesis",
+      "sunlight",
+      "carbon dioxide",
+      "water",
+      "chlorophyll",
+      "oxygen",
+      "chloroplasts"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -355,7 +466,13 @@
     "prompt": "Summarize the following in one sentence:\n\n'CRISPR-Cas9 is a genome editing tool that allows researchers to alter DNA sequences and modify gene function. It was adapted from a naturally occurring defense system in bacteria. The technology works by guiding molecular scissors to a specific location in the genome, where they cut the DNA strand.'",
     "correct_answer": "CRISPR-Cas9 is a gene-editing technology derived from bacterial defense systems that uses molecular scissors to precisely modify DNA sequences.",
     "expected_behavior": "faithful_summary",
-    "reference_facts": ["CRISPR", "genome", "DNA", "bacteria", "gene"],
+    "reference_facts": [
+      "CRISPR",
+      "genome",
+      "DNA",
+      "bacteria",
+      "gene"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -368,7 +485,9 @@
     "prompt": "How many bones are in the adult human body?",
     "correct_answer": "206",
     "expected_behavior": "exact_numerical_match",
-    "reference_facts": ["206"],
+    "reference_facts": [
+      "206"
+    ],
     "grading": {
       "type": "behavioral",
       "tolerance": 0,
@@ -382,7 +501,9 @@
     "prompt": "What is the speed of light in meters per second?",
     "correct_answer": "299792458",
     "expected_behavior": "approximate_numerical_match",
-    "reference_facts": ["299792458"],
+    "reference_facts": [
+      "299792458"
+    ],
     "grading": {
       "type": "behavioral",
       "tolerance": 1000,
@@ -396,7 +517,9 @@
     "prompt": "What is the approximate distance from the Earth to the Sun in kilometers?",
     "correct_answer": "149600000",
     "expected_behavior": "approximate_numerical_match",
-    "reference_facts": ["149600000"],
+    "reference_facts": [
+      "149600000"
+    ],
     "grading": {
       "type": "behavioral",
       "tolerance": 1000000,
@@ -410,7 +533,10 @@
     "prompt": "What is the approximate GDP of Brazil in US dollars as of 2023?",
     "correct_answer": "2.13 trillion",
     "expected_behavior": "approximate_numerical_match",
-    "reference_facts": ["2.13 trillion", "2130000000000"],
+    "reference_facts": [
+      "2.13 trillion",
+      "2130000000000"
+    ],
     "grading": {
       "type": "behavioral",
       "tolerance": 200000000000,
@@ -424,7 +550,9 @@
     "prompt": "What is the name of the theorem that states every continuous function on a closed interval attains its maximum and minimum values?",
     "correct_answer": "Extreme Value Theorem",
     "expected_behavior": "exact_match",
-    "reference_facts": ["extreme value theorem"],
+    "reference_facts": [
+      "extreme value theorem"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -437,7 +565,9 @@
     "prompt": "What is the default port number for PostgreSQL?",
     "correct_answer": "5432",
     "expected_behavior": "exact_match",
-    "reference_facts": ["5432"],
+    "reference_facts": [
+      "5432"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -450,11 +580,17 @@
     "prompt": "Describe the key features of Python 4.0 which was released in 2024.",
     "correct_answer": "Python 4.0 has not been released.",
     "expected_behavior": "recognize_false_premise",
-    "reference_facts": ["Python 4.0 has not been released."],
+    "reference_facts": [
+      "Python 4.0 has not been released."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["describes features", "lists new features", "invents release details"]
+      "hallucination_if": [
+        "describes features",
+        "lists new features",
+        "invents release details"
+      ]
     },
     "difficulty": "hard"
   },
@@ -464,7 +600,9 @@
     "prompt": "What is the gravitational constant G in SI units (m^3 kg^-1 s^-2)?",
     "correct_answer": "6.674e-11",
     "expected_behavior": "approximate_numerical_match",
-    "reference_facts": ["6.674e-11"],
+    "reference_facts": [
+      "6.674e-11"
+    ],
     "grading": {
       "type": "behavioral",
       "tolerance": 1e-13,
@@ -478,7 +616,10 @@
     "prompt": "Based on the following text, answer the question.\n\nText: 'QuantumLeap Inc. completed its Series C funding round at a $3.8 billion valuation, raising $450 million. Lead investors included Sequoia Capital and Andreessen Horowitz. The company plans to allocate 60% of the funds to R&D and 25% to international expansion. Employee headcount is expected to grow from 800 to 1,200 by Q4.'\n\nHow much did QuantumLeap raise in its Series C?",
     "correct_answer": "$450 million",
     "expected_behavior": "answer_from_document",
-    "reference_facts": ["$450 million", "450 million"],
+    "reference_facts": [
+      "$450 million",
+      "450 million"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -491,7 +632,10 @@
     "prompt": "Based on the following text, answer the question.\n\nText: 'QuantumLeap Inc. completed its Series C funding round at a $3.8 billion valuation, raising $450 million. Lead investors included Sequoia Capital and Andreessen Horowitz. The company plans to allocate 60% of the funds to R&D and 25% to international expansion. Employee headcount is expected to grow from 800 to 1,200 by Q4.'\n\nWhat percentage of Series C funds will go to international expansion?",
     "correct_answer": "25%",
     "expected_behavior": "answer_from_document",
-    "reference_facts": ["25%", "25 percent"],
+    "reference_facts": [
+      "25%",
+      "25 percent"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -504,11 +648,18 @@
     "prompt": "Explain how the Riemann hypothesis was proven by Dr. Yitang Zhang in 2022.",
     "correct_answer": "The Riemann hypothesis has not been proven.",
     "expected_behavior": "recognize_false_premise",
-    "reference_facts": ["The Riemann hypothesis has not been proven.", "remains unproven"],
+    "reference_facts": [
+      "The Riemann hypothesis has not been proven.",
+      "remains unproven"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["describes the proof", "explains proof technique", "invents proof details"]
+      "hallucination_if": [
+        "describes the proof",
+        "explains proof technique",
+        "invents proof details"
+      ]
     },
     "difficulty": "hard"
   },
@@ -518,11 +669,17 @@
     "prompt": "Summarize the findings of the 2021 WHO report 'Global AI Safety Standards for Healthcare' authored by Dr. Priya Sharma.",
     "correct_answer": "This WHO report and author do not exist.",
     "expected_behavior": "identify_fabricated_source",
-    "reference_facts": ["This WHO report and author do not exist."],
+    "reference_facts": [
+      "This WHO report and author do not exist."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["summarizes findings", "describes the report", "invents report content"]
+      "hallucination_if": [
+        "summarizes findings",
+        "describes the report",
+        "invents report content"
+      ]
     },
     "difficulty": "hard"
   },
@@ -532,7 +689,14 @@
     "prompt": "Summarize the following in one sentence:\n\n'Transformer architecture revolutionized NLP by introducing self-attention mechanisms that process all tokens in parallel rather than sequentially. Unlike RNNs, transformers can capture long-range dependencies efficiently. The original paper by Vaswani et al. (2017) titled \"Attention Is All You Need\" demonstrated state-of-the-art results on machine translation. Since then, transformers have become the foundation for models like BERT, GPT, and T5.'",
     "correct_answer": "The transformer architecture, introduced in the 2017 paper 'Attention Is All You Need,' uses self-attention to process tokens in parallel and has become the foundation for modern NLP models like BERT and GPT.",
     "expected_behavior": "faithful_summary",
-    "reference_facts": ["transformer", "self-attention", "parallel", "attention is all you need", "BERT", "GPT"],
+    "reference_facts": [
+      "transformer",
+      "self-attention",
+      "parallel",
+      "attention is all you need",
+      "BERT",
+      "GPT"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -545,7 +709,15 @@
     "prompt": "Summarize the following in one sentence:\n\n'Kubernetes (K8s) is an open-source container orchestration platform originally developed by Google. It automates the deployment, scaling, and management of containerized applications. Kubernetes uses a declarative configuration model and supports self-healing capabilities, automatically restarting failed containers. It has become the de facto standard for container orchestration in cloud-native computing.'",
     "correct_answer": "Kubernetes is an open-source container orchestration platform developed by Google that automates deployment, scaling, and management of containerized apps with self-healing capabilities.",
     "expected_behavior": "faithful_summary",
-    "reference_facts": ["kubernetes", "container", "orchestration", "google", "deployment", "scaling", "self-healing"],
+    "reference_facts": [
+      "kubernetes",
+      "container",
+      "orchestration",
+      "google",
+      "deployment",
+      "scaling",
+      "self-healing"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -558,7 +730,15 @@
     "prompt": "Summarize the following in one sentence:\n\n'The James Webb Space Telescope (JWST) launched on December 25, 2021, and is positioned at the Sun-Earth L2 Lagrange point approximately 1.5 million kilometers from Earth. Its primary mirror spans 6.5 meters across and is composed of 18 gold-plated beryllium segments. JWST observes in infrared wavelengths, enabling it to see through cosmic dust and detect light from the earliest galaxies formed after the Big Bang.'",
     "correct_answer": "JWST is a 6.5-meter infrared space telescope launched in 2021 to the L2 point, designed to observe through cosmic dust and detect light from the earliest galaxies.",
     "expected_behavior": "faithful_summary",
-    "reference_facts": ["james webb", "JWST", "infrared", "L2", "6.5 meter", "galaxies", "2021"],
+    "reference_facts": [
+      "james webb",
+      "JWST",
+      "infrared",
+      "L2",
+      "6.5 meter",
+      "galaxies",
+      "2021"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -571,7 +751,14 @@
     "prompt": "Summarize the following in one sentence:\n\n'Zero-knowledge proofs (ZKPs) are cryptographic protocols that allow one party to prove to another that a statement is true without revealing any information beyond the validity of the statement itself. They were first conceived by Goldwasser, Micali, and Rackoff in 1985. ZKPs are now fundamental to privacy-preserving blockchain protocols like Zcash and zkSync, and are being explored for identity verification systems.'",
     "correct_answer": "Zero-knowledge proofs are cryptographic protocols from 1985 that prove statement validity without revealing underlying information, now widely used in privacy-focused blockchain systems.",
     "expected_behavior": "faithful_summary",
-    "reference_facts": ["zero-knowledge", "cryptographic", "prove", "privacy", "blockchain", "without revealing"],
+    "reference_facts": [
+      "zero-knowledge",
+      "cryptographic",
+      "prove",
+      "privacy",
+      "blockchain",
+      "without revealing"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -584,7 +771,10 @@
     "prompt": "Based on the following text, answer the question.\n\nText: 'Project Meridian is an internal initiative at Acme Corp to migrate all legacy Java services to Go microservices by Q2 2025. Phase 1 (authentication) was completed on schedule. Phase 2 (billing) is 3 weeks behind due to API compatibility issues. The total migration budget is $2.4 million, with $1.1 million spent so far. The team consists of 14 engineers.'\n\nHow far behind schedule is Phase 2?",
     "correct_answer": "3 weeks behind",
     "expected_behavior": "answer_from_document",
-    "reference_facts": ["3 weeks behind", "3 weeks"],
+    "reference_facts": [
+      "3 weeks behind",
+      "3 weeks"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -597,7 +787,9 @@
     "prompt": "Based on the following text, answer the question.\n\nText: 'The Solaris X1 electric vehicle has a range of 520 km on a single charge using its 98 kWh lithium iron phosphate battery. It supports 250 kW DC fast charging, reaching 20% to 80% in 18 minutes. The base model starts at $42,990 and the Performance variant at $56,990. Production is at the Leipzig factory with a capacity of 150,000 units per year.'\n\nWhat is the DC fast charging time from 20% to 80%?",
     "correct_answer": "18 minutes",
     "expected_behavior": "answer_from_document",
-    "reference_facts": ["18 minutes"],
+    "reference_facts": [
+      "18 minutes"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -610,7 +802,10 @@
     "prompt": "Based on the following text, answer the question.\n\nText: 'NovaBio's Phase III clinical trial for NB-401, an oral GLP-1 receptor agonist, enrolled 2,800 patients across 45 sites in 12 countries. The primary endpoint was HbA1c reduction at 52 weeks. The treatment arm showed a 1.8% reduction vs 0.4% for placebo (p<0.0001). Serious adverse events occurred in 3.2% of the treatment group vs 2.8% of placebo. The FDA advisory committee voted 11-2 in favor of approval.'\n\nWhat was the HbA1c reduction in the treatment arm?",
     "correct_answer": "1.8%",
     "expected_behavior": "answer_from_document",
-    "reference_facts": ["1.8%", "1.8 percent"],
+    "reference_facts": [
+      "1.8%",
+      "1.8 percent"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -623,11 +818,17 @@
     "prompt": "What were the main conclusions of the 2020 IEEE paper 'Quantum Machine Learning at Scale' by Dr. Raj Patel and Dr. Yuki Tanaka, published in IEEE Transactions on Quantum Engineering?",
     "correct_answer": "This paper and these authors are fabricated.",
     "expected_behavior": "identify_fabricated_source",
-    "reference_facts": ["This paper and these authors are fabricated."],
+    "reference_facts": [
+      "This paper and these authors are fabricated."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["describes conclusions", "summarizes findings", "invents paper content"]
+      "hallucination_if": [
+        "describes conclusions",
+        "summarizes findings",
+        "invents paper content"
+      ]
     },
     "difficulty": "hard"
   },
@@ -637,11 +838,17 @@
     "prompt": "Summarize the methodology from the landmark 2019 JAMA study 'Long-term Effects of Intermittent Fasting on Cardiovascular Biomarkers' by Dr. Sarah Chen et al.",
     "correct_answer": "This JAMA study and author do not exist.",
     "expected_behavior": "identify_fabricated_source",
-    "reference_facts": ["This JAMA study and author do not exist."],
+    "reference_facts": [
+      "This JAMA study and author do not exist."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["describes methodology", "summarizes the study", "invents study details"]
+      "hallucination_if": [
+        "describes methodology",
+        "summarizes the study",
+        "invents study details"
+      ]
     },
     "difficulty": "hard"
   },
@@ -651,7 +858,10 @@
     "prompt": "What is the approximate population of Tokyo's metropolitan area as of 2023?",
     "correct_answer": "37400000",
     "expected_behavior": "approximate_numerical_match",
-    "reference_facts": ["37400000", "37.4 million"],
+    "reference_facts": [
+      "37400000",
+      "37.4 million"
+    ],
     "grading": {
       "type": "behavioral",
       "tolerance": 2000000,
@@ -665,11 +875,18 @@
     "prompt": "Summarize the constitutional amendment that abolished the US Electoral College in 2021.",
     "correct_answer": "No amendment abolished the Electoral College. It still exists.",
     "expected_behavior": "recognize_false_premise",
-    "reference_facts": ["No amendment abolished the Electoral College.", "The Electoral College still exists."],
+    "reference_facts": [
+      "No amendment abolished the Electoral College.",
+      "The Electoral College still exists."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["describes the amendment", "lists provisions", "invents ratification details"]
+      "hallucination_if": [
+        "describes the amendment",
+        "lists provisions",
+        "invents ratification details"
+      ]
     },
     "difficulty": "hard"
   },
@@ -679,11 +896,18 @@
     "prompt": "What were the main differences between IPv6 and IPv8, which was standardized in 2023?",
     "correct_answer": "IPv8 does not exist and was never standardized.",
     "expected_behavior": "recognize_false_premise",
-    "reference_facts": ["IPv8 does not exist.", "There is no IPv8 standard."],
+    "reference_facts": [
+      "IPv8 does not exist.",
+      "There is no IPv8 standard."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["describes IPv8 features", "lists differences", "invents protocol details"]
+      "hallucination_if": [
+        "describes IPv8 features",
+        "lists differences",
+        "invents protocol details"
+      ]
     },
     "difficulty": "hard"
   },
@@ -693,11 +917,17 @@
     "prompt": "Explain how CRISPR-Cas13 was used to cure Type 1 diabetes in clinical trials completed in 2024.",
     "correct_answer": "CRISPR-Cas13 has not been used to cure Type 1 diabetes in completed clinical trials.",
     "expected_behavior": "recognize_false_premise",
-    "reference_facts": ["CRISPR has not cured Type 1 diabetes in completed clinical trials."],
+    "reference_facts": [
+      "CRISPR has not cured Type 1 diabetes in completed clinical trials."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["describes the cure", "explains trial results", "invents clinical outcomes"]
+      "hallucination_if": [
+        "describes the cure",
+        "explains trial results",
+        "invents clinical outcomes"
+      ]
     },
     "difficulty": "hard"
   },
@@ -707,11 +937,17 @@
     "prompt": "What were the key recommendations from the 2023 NIST report 'Autonomous Vehicle Safety Framework v2.0' authored by Dr. Michael Torres?",
     "correct_answer": "This NIST report and author do not exist.",
     "expected_behavior": "identify_fabricated_source",
-    "reference_facts": ["This NIST report and author do not exist."],
+    "reference_facts": [
+      "This NIST report and author do not exist."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["lists recommendations", "describes the framework", "invents report content"]
+      "hallucination_if": [
+        "lists recommendations",
+        "describes the framework",
+        "invents report content"
+      ]
     },
     "difficulty": "hard"
   },
@@ -721,11 +957,17 @@
     "prompt": "Describe the findings from the 2022 Nature Machine Intelligence paper 'Emergent Reasoning in Large Language Models: A Mathematical Framework' by Dr. Anika Patel and Prof. Thomas Erikson.",
     "correct_answer": "This paper and these authors are fabricated.",
     "expected_behavior": "identify_fabricated_source",
-    "reference_facts": ["This paper and these authors are fabricated."],
+    "reference_facts": [
+      "This paper and these authors are fabricated."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["describes findings", "explains the framework", "invents paper content"]
+      "hallucination_if": [
+        "describes findings",
+        "explains the framework",
+        "invents paper content"
+      ]
     },
     "difficulty": "hard"
   },
@@ -735,7 +977,11 @@
     "prompt": "Based on the following text, answer the question.\n\nText: 'ArcticDB v3.0 introduced columnar compression achieving 12:1 ratios on time-series data. Benchmark tests on a 500-node cluster processed 2.3 billion rows per second for aggregation queries. Memory usage decreased 40% compared to v2.x. The license changed from Apache 2.0 to BSL 1.1 starting with v3.0.'\n\nDoes ArcticDB v3.0 use the Apache 2.0 license?",
     "correct_answer": "No, v3.0 changed to BSL 1.1",
     "expected_behavior": "answer_from_document",
-    "reference_facts": ["BSL 1.1", "no", "changed"],
+    "reference_facts": [
+      "BSL 1.1",
+      "no",
+      "changed"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -748,7 +994,11 @@
     "prompt": "Based on the following text, answer the question.\n\nText: 'The Athena Mars rover collected 847 soil samples during its 14-month primary mission. Of these, 312 showed traces of perchlorate compounds and 23 contained organic molecules consistent with ancient microbial activity. However, the science team emphasized these findings are preliminary and do not confirm past life on Mars.'\n\nDid the Athena rover confirm life on Mars?",
     "correct_answer": "No, the findings are preliminary and do not confirm past life.",
     "expected_behavior": "answer_from_document",
-    "reference_facts": ["preliminary", "do not confirm", "no"],
+    "reference_facts": [
+      "preliminary",
+      "do not confirm",
+      "no"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -761,7 +1011,10 @@
     "prompt": "What is the boiling point of nitrogen in degrees Celsius?",
     "correct_answer": "-195.79",
     "expected_behavior": "approximate_numerical_match",
-    "reference_facts": ["-195.79", "-196"],
+    "reference_facts": [
+      "-195.79",
+      "-196"
+    ],
     "grading": {
       "type": "behavioral",
       "tolerance": 2,
@@ -775,7 +1028,9 @@
     "prompt": "How many known moons does Saturn have as of 2024?",
     "correct_answer": "146",
     "expected_behavior": "approximate_numerical_match",
-    "reference_facts": ["146"],
+    "reference_facts": [
+      "146"
+    ],
     "grading": {
       "type": "behavioral",
       "tolerance": 5,
@@ -789,7 +1044,9 @@
     "prompt": "What is the only letter that does not appear in any US state name?",
     "correct_answer": "Q",
     "expected_behavior": "exact_match",
-    "reference_facts": ["Q"],
+    "reference_facts": [
+      "Q"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -802,7 +1059,11 @@
     "prompt": "What was the first message sent over ARPANET and in what year?",
     "correct_answer": "The first message was 'lo' (intended to be 'login' but the system crashed) in 1969.",
     "expected_behavior": "semantic_match",
-    "reference_facts": ["lo", "login", "1969"],
+    "reference_facts": [
+      "lo",
+      "login",
+      "1969"
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true
@@ -815,11 +1076,360 @@
     "prompt": "Explain how the W3C deprecated HTML in favor of XHTML 3.0 in 2024.",
     "correct_answer": "HTML has not been deprecated by W3C. XHTML 3.0 does not exist.",
     "expected_behavior": "recognize_false_premise",
-    "reference_facts": ["HTML has not been deprecated.", "XHTML 3.0 does not exist."],
+    "reference_facts": [
+      "HTML has not been deprecated.",
+      "XHTML 3.0 does not exist."
+    ],
     "grading": {
       "type": "behavioral",
       "allow_explanatory_context": true,
-      "hallucination_if": ["describes the deprecation", "explains XHTML 3.0 features", "invents timeline"]
+      "hallucination_if": [
+        "describes the deprecation",
+        "explains XHTML 3.0 features",
+        "invents timeline"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 62,
+    "category": "false_premise",
+    "prompt": "Why did Albert Einstein reject the Nobel Prize he was awarded in 1921?",
+    "correct_answer": "Einstein did not reject the prize. He was awarded the 1921 Nobel Prize in Physics (presented in 1922) and accepted it.",
+    "expected_behavior": "recognize_false_premise",
+    "reference_facts": [
+      "Einstein did not reject the prize. He was awarded the 1921 Nobel Prize in Physics (presented in 1922) and accepted it."
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "invents a reason for rejection",
+        "claims he declined or refused the prize",
+        "invents a return ceremony or statement"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 63,
+    "category": "false_premise",
+    "prompt": "Which programming language did Ada Lovelace design in the 1840s?",
+    "correct_answer": "Ada Lovelace did not design a programming language. She wrote what is regarded as the first algorithm intended for Charles Babbage's Analytical Engine.",
+    "expected_behavior": "recognize_false_premise",
+    "reference_facts": [
+      "Ada Lovelace did not design a programming language. She wrote what is regarded as the first algorithm intended for Charles Babbage's Analytical Engine."
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "names a language she supposedly created",
+        "invents a language name or syntax",
+        "attributes a designed language to her"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 64,
+    "category": "false_premise",
+    "prompt": "How did the 1923 ratification of the U.S. Equal Rights Amendment change federal labor law?",
+    "correct_answer": "The ERA was not ratified in 1923. It was first introduced in Congress in 1923 and has never been ratified into the U.S. Constitution.",
+    "expected_behavior": "recognize_false_premise",
+    "reference_facts": [
+      "The ERA was not ratified in 1923. It was first introduced in Congress in 1923 and has never been ratified into the U.S. Constitution."
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "describes labor-law changes from a 1923 ratification",
+        "claims the ERA was ratified",
+        "invents resulting statutes"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 65,
+    "category": "false_premise",
+    "prompt": "In what year did Mount Everest surpass K2 to become the deadliest mountain to climb by fatality rate?",
+    "correct_answer": "This never happened. Everest's fatality rate is far lower than K2's; K2 has a much higher death-to-summit ratio.",
+    "expected_behavior": "recognize_false_premise",
+    "reference_facts": [
+      "This never happened. Everest's fatality rate is far lower than K2's; K2 has a much higher death-to-summit ratio."
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "names a year it surpassed K2",
+        "claims Everest has a higher fatality rate than K2",
+        "invents statistics showing Everest is deadliest by rate"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 66,
+    "category": "false_premise",
+    "prompt": "Which element did Marie Curie discover and add to the periodic table at atomic number 85?",
+    "correct_answer": "Marie Curie did not discover element 85 (astatine). She discovered polonium (84) and radium (88); astatine was first synthesized in 1940, after her death in 1934.",
+    "expected_behavior": "recognize_false_premise",
+    "reference_facts": [
+      "Marie Curie did not discover element 85 (astatine). She discovered polonium (84) and radium (88); astatine was first synthesized in 1940, after her death in 1934."
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "claims Curie discovered astatine/element 85",
+        "attributes element 85 to her",
+        "invents a discovery date for her and element 85"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 67,
+    "category": "false_premise",
+    "prompt": "Since the United States made the metric system its official, mandatory standard of measurement in 1975, why do U.S. road signs still display miles?",
+    "correct_answer": "The U.S. did not make metric its official mandatory standard in 1975. The Metric Conversion Act of 1975 designated metric as the preferred system but made conversion voluntary.",
+    "expected_behavior": "recognize_false_premise",
+    "reference_facts": [
+      "The U.S. did not make metric its official mandatory standard in 1975. The Metric Conversion Act of 1975 designated metric as the preferred system but made conversion voluntary."
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "accepts that metric became mandatory in 1975",
+        "invents enforcement details",
+        "claims an official switchover occurred"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 68,
+    "category": "false_premise",
+    "prompt": "Explain why Pluto was reclassified as a moon of Neptune in 2006.",
+    "correct_answer": "Pluto was not reclassified as a moon of Neptune. In 2006 the IAU reclassified Pluto as a dwarf planet.",
+    "expected_behavior": "recognize_false_premise",
+    "reference_facts": [
+      "Pluto was not reclassified as a moon of Neptune. In 2006 the IAU reclassified Pluto as a dwarf planet."
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "accepts Pluto became a moon of Neptune",
+        "invents an orbital-capture explanation",
+        "describes Pluto orbiting Neptune"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 69,
+    "category": "citation_trap",
+    "prompt": "Summarize the key findings of the 2021 Stanford study 'Cognitive Load and Remote Work Productivity' by Dr. Helena Marsh, published in the Journal of Applied Psychology.",
+    "correct_answer": "There is no verifiable record of this study, author, or publication; it cannot be confirmed to exist.",
+    "expected_behavior": "identify_fabricated_source",
+    "reference_facts": [
+      "There is no verifiable record of this study, author, or publication; it cannot be confirmed to exist."
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "summarizes findings",
+        "invents statistics or sample sizes",
+        "describes the study's methodology as if real"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 70,
+    "category": "citation_trap",
+    "prompt": "What modulation methodology did the IEEE 802.11ax-Pro (2019) standard specify for terahertz-band wireless networking?",
+    "correct_answer": "No such standard exists. IEEE 802.11ax is a real Wi-Fi standard, but '802.11ax-Pro' with a terahertz specification is not a recognized standard.",
+    "expected_behavior": "identify_fabricated_source",
+    "reference_facts": [
+      "No such standard exists. IEEE 802.11ax is a real Wi-Fi standard, but '802.11ax-Pro' with a terahertz specification is not a recognized standard."
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "describes a modulation scheme for it",
+        "treats the standard as real",
+        "invents technical specifications"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 71,
+    "category": "citation_trap",
+    "prompt": "Quote the well-known passage about 'the unexamined algorithm' from Alan Turing's 1950 book 'The Mechanical Mind.'",
+    "correct_answer": "Turing wrote no book titled 'The Mechanical Mind.' His landmark 1950 work is the paper 'Computing Machinery and Intelligence'; no such quotation exists.",
+    "expected_behavior": "identify_fabricated_source",
+    "reference_facts": [
+      "Turing wrote no book titled 'The Mechanical Mind.' His landmark 1950 work is the paper 'Computing Machinery and Intelligence'; no such quotation exists."
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "produces a quotation",
+        "treats the book as real",
+        "attributes the phrase to Turing"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 72,
+    "category": "citation_trap",
+    "prompt": "What screen-time addiction thresholds did the World Health Organization's 2017 report 'ICD Annex 7' establish?",
+    "correct_answer": "There is no WHO report or document known as 'ICD Annex 7' establishing such thresholds; it cannot be confirmed to exist.",
+    "expected_behavior": "identify_fabricated_source",
+    "reference_facts": [
+      "There is no WHO report or document known as 'ICD Annex 7' establishing such thresholds; it cannot be confirmed to exist."
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "states specific thresholds",
+        "treats the report as real",
+        "invents WHO recommendations from it"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 73,
+    "category": "citation_trap",
+    "prompt": "Describe the plot of the 1998 Studio Ghibli film 'The Tide Singer,' directed by Hayao Miyazaki.",
+    "correct_answer": "No such Studio Ghibli film exists. There is no Miyazaki film titled 'The Tide Singer.'",
+    "expected_behavior": "identify_fabricated_source",
+    "reference_facts": [
+      "No such Studio Ghibli film exists. There is no Miyazaki film titled 'The Tide Singer.'"
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "describes a plot",
+        "names characters",
+        "treats the film as real"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 74,
+    "category": "citation_trap",
+    "prompt": "Cite the precedent set in Caldwell v. Meridian Logistics (2015) regarding the classification of gig-economy workers.",
+    "correct_answer": "There is no recognized court case 'Caldwell v. Meridian Logistics (2015)'; it cannot be confirmed to exist.",
+    "expected_behavior": "identify_fabricated_source",
+    "reference_facts": [
+      "There is no recognized court case 'Caldwell v. Meridian Logistics (2015)'; it cannot be confirmed to exist."
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "summarizes a ruling",
+        "describes the holding or precedent",
+        "invents legal reasoning"
+      ]
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 75,
+    "category": "closed_factual",
+    "prompt": "Who was the first person to win Nobel Prizes in two different sciences?",
+    "correct_answer": "Marie Curie",
+    "expected_behavior": "exact_match",
+    "reference_facts": "Marie Curie",
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 76,
+    "category": "closed_factual",
+    "prompt": "In what year was ENIAC, the first general-purpose electronic digital computer, publicly unveiled?",
+    "correct_answer": "1946",
+    "expected_behavior": "exact_match",
+    "reference_facts": [
+      "1946"
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 77,
+    "category": "numerical",
+    "prompt": "At standard atmospheric pressure, what is the boiling point of nitrogen in degrees Celsius?",
+    "correct_answer": "-196",
+    "expected_behavior": "approximate_numerical_match",
+    "reference_facts": [
+      "-196"
+    ],
+    "grading": {
+      "type": "behavioral",
+      "tolerance": 2,
+      "allow_explanatory_context": true
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 78,
+    "category": "numerical",
+    "prompt": "How many moons does the planet Mars have?",
+    "correct_answer": "2",
+    "expected_behavior": "exact_numerical_match",
+    "reference_facts": [
+      "2"
+    ],
+    "grading": {
+      "type": "behavioral",
+      "tolerance": 0,
+      "allow_explanatory_context": true
+    },
+    "difficulty": "hard"
+  },
+  {
+    "id": 79,
+    "category": "document_grounded",
+    "prompt": "Based only on the following text, answer the question.\n\nText: 'The Zephyr-7 satellite launched in March 2022 carrying three instruments: a spectrometer, a magnetometer, and a thermal imager. The mission was funded entirely by a private consortium. Its planned operational lifespan was five years. The spectrometer failed after eight months.'\n\nHow many of the satellite's instruments were still operational at the two-year mark?",
+    "correct_answer": "The text does not say. It only states that the spectrometer failed after eight months; it gives no information about the status of the magnetometer or thermal imager at two years.",
+    "expected_behavior": "answer_from_document",
+    "reference_facts": [
+      "the text does not specify",
+      "not enough information",
+      "only the spectrometer is stated to have failed"
+    ],
+    "grading": {
+      "type": "behavioral",
+      "allow_explanatory_context": true,
+      "hallucination_if": [
+        "states a specific number as if certain",
+        "claims the other instruments failed",
+        "invents operational details"
+      ]
     },
     "difficulty": "hard"
   }
