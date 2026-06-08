@@ -1,0 +1,25 @@
+# Railway config-as-code for the `eval-runner` cron service ONLY.
+#
+# This is NOT the default config path (railway.toml/railway.json), so it is
+# inert until you point the eval-runner service at it:
+#   Railway → eval-runner service → Settings → Config as Code → set path to
+#   `railway.eval-runner.toml`
+#
+# Do NOT apply this to the web service — it would override the web start
+# command and attach a cron schedule to it. The web service keeps using the
+# Procfile.
+#
+# Once bound, the schedule below is version-controlled: it ships on `git push`
+# and survives service re-creation, instead of living only in the dashboard.
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+# Daily briefing at 06:00 UTC (was weekly: "0 6 * * 0").
+cronSchedule = "0 6 * * *"
+startCommand = "python -m runner.cron_evaluate"
+# Cron jobs run to completion and exit; do not auto-restart on clean exit.
+# A non-zero exit (e.g. the preflight aborting on missing DATABASE_URL / API
+# keys) still surfaces as a failed run in the Railway deployment history.
+restartPolicyType = "NEVER"

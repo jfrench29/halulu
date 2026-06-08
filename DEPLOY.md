@@ -200,11 +200,15 @@ hardcoded. Update the `MODELS` list there when adding/removing models.
 
 1. Railway dashboard → your `halulu` project → **+ New** → **Empty Service** → name it `eval-runner`
 2. Connect to the same GitHub repo (`jfrench29/halulu`)
-3. **Settings** → **Start Command**:
-   ```
-   python -m runner.cron_evaluate
-   ```
-4. **Settings** → **Cron Schedule**: `0 6 * * *` (daily, 6:00 AM UTC)
+3. **Settings** → **Config as Code** → set the path to `railway.eval-runner.toml`.
+   This file pins the start command, the daily cron schedule, and a
+   `NEVER` restart policy in version control, so the schedule ships on
+   `git push` and survives service re-creation. (It is a non-default path
+   on purpose — it must never bind to the web service.)
+4. The bound config sets **Start Command** `python -m runner.cron_evaluate`
+   and **Cron Schedule** `0 6 * * *` (daily, 6:00 AM UTC). You can confirm
+   these under **Settings**; to change the cadence later, edit
+   `railway.eval-runner.toml` and push.
 5. Environment variables (DATABASE_URL + API keys) are shared within the
    Railway project — verify they're visible to the new service.
    `cron_evaluate.py` runs a **preflight** at startup that aborts with a
