@@ -280,6 +280,16 @@ class ResultsDB:
             row = cur.fetchone()
             return row[0] if isinstance(row, tuple) else row["COUNT(*)"]
 
+    def get_latest_run_timestamp(self) -> str | None:
+        """ISO timestamp of the most recent eval run, or None if there are none."""
+        with self._conn() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT timestamp FROM eval_runs ORDER BY timestamp DESC LIMIT 1")
+            row = cur.fetchone()
+            if row is None:
+                return None
+            return row[0] if isinstance(row, tuple) else row["timestamp"]
+
     def close(self):
         if self._is_postgres:
             self._pool.closeall()

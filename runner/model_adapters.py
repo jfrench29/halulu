@@ -321,6 +321,18 @@ _PROVIDER_MAP = {
     "local/": "local",
 }
 
+# API-key environment variable required by each provider. "local" needs none.
+PROVIDER_ENV_VAR: dict[str, str] = {
+    "openai": "OPENAI_API_KEY",
+    "anthropic": "ANTHROPIC_API_KEY",
+    "google": "GOOGLE_API_KEY",
+    "xai": "XAI_API_KEY",
+    "mistral": "MISTRAL_API_KEY",
+    "together": "TOGETHER_API_KEY",
+    "deepseek": "DEEPSEEK_API_KEY",
+    "local": "",
+}
+
 # Estimated cost per 100 questions (USD) — ~200 input + ~200 output tokens each.
 # Only models in the active benchmark lineup are listed; all IDs are
 # live-validated by scripts/validate_models.py. Costs marked "est." are
@@ -357,6 +369,25 @@ def resolve_provider(model_name: str) -> str | None:
         if model_name.startswith(prefix):
             return prov
     return None
+
+
+def required_env_vars(models: list[str]) -> dict[str, list[str]]:
+    """Map each required API-key env var to the models that depend on it.
+
+    Models whose provider cannot be resolved are grouped under the sentinel
+    key ``"<no provider mapping>"`` so callers can surface them as errors.
+    Providers that need no key (e.g. local) contribute nothing.
+    """
+    out: dict[str, list[str]] = {}
+    for model in models:
+        provider = resolve_provider(model)
+        if provider is None:
+            out.setdefault("<no provider mapping>", []).append(model)
+            continue
+        var = PROVIDER_ENV_VAR.get(provider, "")
+        if var:
+            out.setdefault(var, []).append(model)
+    return out
 
 
 def get_cost_per_100(model_name: str) -> float | None:

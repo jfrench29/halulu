@@ -138,4 +138,4 @@ These limitations are documented because transparency about methodology constrai
 
 The public question set (`dataset/public_tests.json`) is included in the repository. Anyone can run the benchmark against any supported model and verify results independently.
 
-Evaluations are run weekly via automated cron on the production database. Historical results are preserved — the dashboard shows the most recent evaluation per model.
+Evaluations are run daily via automated cron on the production database. Historical results are preserved — the dashboard shows the most recent evaluation per model.

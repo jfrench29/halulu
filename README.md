@@ -69,7 +69,7 @@ ai_reliability_index/
 ├── runner/
 │   ├── model_adapters.py          # Provider adapters (OpenAI, Anthropic, Google, xAI, Mistral, Together)
 │   ├── evaluate_models.py         # Evaluation orchestrator
-│   └── cron_evaluate.py           # Weekly automated evaluation
+│   └── cron_evaluate.py           # Daily automated evaluation
 ├── grading/
 │   ├── grader.py                  # Category-based grading dispatcher
 │   ├── graders/                   # 6 category-specific graders

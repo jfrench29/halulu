@@ -23,7 +23,7 @@ custom domain registered through Squarespace.
 │   GitHub     │───▶│   auto-deploy                        │
 │   (repo)     │    │                                       │
 └──────────────┘    │  ┌─────────────┐                      │
-                    │  │ eval-runner │  (cron, weekly)       │
+                    │  │ eval-runner │  (cron, daily)        │
 ┌──────────────┐    │  └─────────────┘                      │
 │  Plausible   │    └───────────────────────────────────────┘
 │  (analytics) │
@@ -193,9 +193,9 @@ Refresh https://halulu.ai — the leaderboard populates immediately.
 
 ---
 
-## Step 8 — Set Up Weekly Evaluations
+## Step 8 — Set Up Daily Evaluations
 
-The cron entry point lives in `runner/cron_evaluate.py` with all 11 models
+The cron entry point lives in `runner/cron_evaluate.py` with all 10 models
 hardcoded. Update the `MODELS` list there when adding/removing models.
 
 1. Railway dashboard → your `halulu` project → **+ New** → **Empty Service** → name it `eval-runner`
@@ -204,9 +204,13 @@ hardcoded. Update the `MODELS` list there when adding/removing models.
    ```
    python -m runner.cron_evaluate
    ```
-4. **Settings** → **Cron Schedule**: `0 6 * * 0` (Sundays 6:00 AM UTC)
+4. **Settings** → **Cron Schedule**: `0 6 * * *` (daily, 6:00 AM UTC)
 5. Environment variables (DATABASE_URL + API keys) are shared within the
-   Railway project — verify they're visible to the new service
+   Railway project — verify they're visible to the new service.
+   `cron_evaluate.py` runs a **preflight** at startup that aborts with a
+   clear log (exit code 2) if `DATABASE_URL` or any required provider API
+   key is missing, so a misconfigured service fails loudly instead of
+   silently writing nothing.
 
 **Current models (10):** gpt-5.1, gpt-4.1-mini,
 claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5-20251001,
@@ -216,8 +220,9 @@ deepseek-chat
 
 **Test locally:**
 ```bash
-python -m runner.cron_evaluate --dry   # print model list and exit
-python -m runner.cron_evaluate         # full run
+python -m runner.cron_evaluate --dry           # print model list and exit
+python -m runner.cron_evaluate --allow-sqlite  # full run against local SQLite
+python -m runner.cron_evaluate                 # full run (requires DATABASE_URL)
 ```
 
 ---
@@ -229,8 +234,15 @@ The app runs a health check server on port 8081 alongside Streamlit.
 **Test it:**
 ```bash
 curl https://halulu.ai:8081/health
-# → {"status": "ok", "results": 450}
+# → {"status": "ok", "results": 450, "last_run": "2026-06-08T06:00:12+00:00",
+#    "last_run_age_hours": 3.2, "fresh": true}
 ```
+
+`fresh` is `false` (with `"reason": "stale"`) when the newest eval run is
+older than `FRESHNESS_MAX_HOURS` (default 36) — i.e. the daily briefing was
+missed. The check still returns 200 so a stale cron does not trip Railway
+into restarting the web service; point an UptimeRobot keyword monitor at
+`"fresh": true` to get alerted when a briefing fails to land.
 
 **Set up uptime monitoring:**
 - **UptimeRobot** (free, 5-min checks): https://uptimerobot.com
@@ -336,7 +348,7 @@ Monetization options:
 - [ ] `git push origin main` triggers Railway auto-deploy
 - [ ] `curl halulu.ai:8081/health` returns `{"status": "ok"}`
 - [ ] Plausible shows visitor data
-- [ ] Weekly cron eval runs successfully
+- [ ] Daily cron eval runs successfully (`/health` shows `"fresh": true`)
 - [ ] `www.halulu.ai` works (Cloudflare CNAME)
 - [ ] Cloudflare WAF enabled
 - [ ] No API keys in git history (`git log -p | grep -i "sk-"`)
