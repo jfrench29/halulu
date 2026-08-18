@@ -1,0 +1,67 @@
+{
+  "exported_at": "2026-08-18T01:25:16.225799+00:00",
+  "source": "Halulu production Postgres (Railway), exported at retirement",
+  "tables": {
+    "eval_runs": {
+      "rows": 36,
+      "columns": [
+        "id",
+        "run_id",
+        "timestamp",
+        "dataset",
+        "models"
+      ],
+      "file": "eval_runs.csv",
+      "bytes": 12716,
+      "sha256": "d46baab8f92c583739141791d6c795fe44e1f45f58af881f23bb10c7828f8198"
+    },
+    "eval_results": {
+      "rows": 22946,
+      "columns": [
+        "id",
+        "run_id",
+        "model",
+        "test_id",
+        "category",
+        "prompt",
+        "response",
+        "grade",
+        "hallucination_subtype",
+        "confidence",
+        "explanation",
+        "latency_ms",
+        "timestamp",
+        "severity"
+      ],
+      "file": "eval_results.csv",
+      "bytes": 28223833,
+      "sha256": "3caab39f2cf2ab722513add8906eb3321a77223cac822cf8ded34bdf1a72b559"
+    },
+    "hall_of_fame": {
+      "rows": 50,
+      "columns": [
+        "id",
+        "model",
+        "test_id",
+        "prompt",
+        "response",
+        "hallucination_subtype",
+        "added_at"
+      ],
+      "file": "hall_of_fame.csv",
+      "bytes": 88331,
+      "sha256": "5052a8cc83cae2fa82e59712cd83ba8a03fdb39bb00723af0f813c340bddf5c0"
+    },
+    "weekly_summary": {
+      "rows": 342,
+      "file": "weekly_summary.csv",
+      "note": "Derived per-model-per-run grade counts and rates.",
+      "sha256": "cdcf299aff3e0a361d23f6038ead82be1396f86d68b32564b6285b17fe7d48b6"
+    }
+  },
+  "coverage": {
+    "first_run": "2026-03-10T11:07:20.605291+00:00",
+    "last_run": "2026-08-16T06:03:40.795920+00:00",
+    "distinct_models_ever": 25
+  }
+}

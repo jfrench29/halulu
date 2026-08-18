@@ -1,10 +1,56 @@
 # Halulu — AI Reliability Index
 
+> ## ⚠️ Retired — 17 August 2026
+>
+> **This benchmark no longer runs.** It evaluated AI hallucination rates weekly from
+> March to August 2026, then was retired deliberately rather than left to publish
+> stale numbers behind a live-looking front page.
+>
+> **The full dataset is preserved here:** [`data/archive/`](data/archive/) —
+> 22,946 graded responses across 25 models, 36 evaluation runs, 6 providers.
+> Several of the models measured have since been superseded; the lineup is frozen
+> as of August 2026 and will not be updated.
+>
+> **Findings and final leaderboard:** [halulu.ai](https://halulu.ai)
+>
+> The code below is left intact and MIT licensed. It is documented in the present
+> tense as it was written; read it as a description of how the benchmark *worked*.
+
+---
+
+## Final results (16 August 2026)
+
+| # | Model | WRS | Hallucination | Cost/100q | WRS per $1 |
+|---|-------|----:|----:|----:|----:|
+| 1 | gemini-2.5-pro | 92.5 | 2.5% | $0.25 | 370 |
+| 2 | claude-haiku-4-5 | 91.1 | **1.3%** | $0.05 | 1,822 |
+| 3 | grok-4.3 | 90.6 | 3.8% | $0.36 | 252 |
+| 4 | claude-opus-4-8 | 90.5 | 3.8% | $1.80 | 50 |
+| 5 | deepseek-chat | 86.8 | 5.1% | $0.01 | **8,677** |
+| 6 | claude-sonnet-4-6 | 85.1 | 6.3% | $0.36 | 236 |
+| 7 | gemini-2.5-flash | 78.4 | 8.9% | $0.02 | 3,921 |
+| 8 | mistral-large | 71.6 | 11.4% | $0.16 | 448 |
+| 9 | gpt-5.1 | 71.4 | 12.7% | $1.50 | 48 |
+| 10 | gpt-4.1-mini | 61.1 | 16.5% | $0.03 | 2,036 |
+
+**Headline: price does not predict honesty.** The cheapest Anthropic model had the
+lowest fabrication rate of anything tested (1.3%) and outranked a model costing 36×
+more. The two most expensive models had the two worst reliability-per-dollar ratios.
+This held across eleven consecutive weekly runs.
+
+**Known limitation:** `deepseek-chat` is a provider alias that resolved to different
+underlying models over the project's life (it served `deepseek-v4-flash` by the final
+run). Aliases should have been pinned to explicit versions. Treat that series as
+indicative, not like-for-like.
+
+---
+
+
 **How reliable is your AI? Not how smart. How honest.**
 
 Halulu is an independent, open-source benchmark that measures AI hallucination rates across production models. It uses adversarial trap questions designed to catch fabrication, not just test knowledge.
 
-**Live dashboard:** [halulu.ai](https://halulu.ai)
+**Archived results:** [halulu.ai](https://halulu.ai) · **Dataset:** [`data/archive/`](data/archive/)
 
 ---
 
